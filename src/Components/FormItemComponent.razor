@@ -1,0 +1,163 @@
+﻿
+<RgfFormItemComponent FormItemParameters="FormItemParameters" ShowValidationMessage="false">
+    <ItemTemplate Context="RgfFormItem">
+
+        <DxFormLayoutItem Caption="@Label" ColSpanSm="FormItemParameters.Property.FlexColumnWidth ?? FormItemParameters.Group.FlexColumnWidth">
+
+            @switch (PropertyDesc.FormType)
+            {
+                case PropertyFormType.TextBox:
+                    if (Property.ForeignEntity != null)
+                    {
+                        <DxTextBox @bind-Text="ItemData.StringValue"
+                                   ReadOnly="Property.Readonly" Enabled="!Property.Disabled"
+                                   CssClass="@RgfFormItem.CssClass" Id="@Id">
+                            <Buttons>
+                                <DxEditorButton IconCssClass="dx-icon-search" Click="() => RgfFormItem.OnSearchEntity(ItemData.StringValue)" />
+                            </Buttons>
+                        </DxTextBox>
+                    }
+                    else
+                    {
+                        @switch (PropertyDesc.ClientDataType)
+                        {
+                            case ClientDataType.Integer:
+                                <DxSpinEdit @bind-Value="ItemData.IntValue"
+                                            T="int?" ShowSpinButtons="false"
+                                            ReadOnly="Property.Readonly" Enabled="!Property.Disabled"
+                                            CssClass="@RgfFormItem.CssClass" Id="@Id" />
+                                break;
+
+                            case ClientDataType.Decimal:
+                                <DxSpinEdit @bind-Value="ItemData.DecimalValue"
+                                            T="decimal?" ShowSpinButtons="false"
+                                            ReadOnly="Property.Readonly" Enabled="!Property.Disabled"
+                                            CssClass="@RgfFormItem.CssClass" Id="@Id" />
+                                break;
+
+                            case ClientDataType.Double:
+                                <DxSpinEdit @bind-Value="ItemData.DoubleValue"
+                                            T="double?" ShowSpinButtons="false"
+                                            ReadOnly="Property.Readonly" Enabled="!Property.Disabled"
+                                            CssClass="@RgfFormItem.CssClass" Id="@Id" />
+                                break;
+
+                            default:
+                                <DxTextBox @bind-Text="ItemData.StringValue"
+                                           Password="PropertyDesc.PasswordType"
+                                           ReadOnly="Property.Readonly" Enabled="!Property.Disabled" 
+                                           CssClass="@RgfFormItem.CssClass" Id="@Id" />
+                                break;
+                        }
+                    }
+                    break;
+
+                case PropertyFormType.TextBoxMultiLine:
+                    @*DevExpress Support Team:Currently, we do not have such a multi-line component*@
+                    <DxTextBox @bind-Text="ItemData.StringValue"
+                               ReadOnly="Property.Readonly" Enabled="!Property.Disabled"
+                               CssClass="@RgfFormItem.CssClass" Id="@Id" />
+                    break;
+
+                case PropertyFormType.CheckBox:
+                case PropertyFormType.DropDown:
+                    if (PropertyDesc.FormType == PropertyFormType.CheckBox && Property.AvailableItems?.Any() != true)
+                    {
+                        <div class="mt-4">
+                            <DxCheckBox @bind-Checked="ItemData.BooleanValue"
+                                        ReadOnly="Property.Readonly" Enabled="!Property.Disabled"
+                                        CssClass="@RgfFormItem.CssClass">@Property.Label</DxCheckBox>
+                        </div>
+                    }
+                    else
+                    {
+                        <DxComboBox TValue="string" TData="KeyValuePair<string, string>" TextFieldName="Value" ValueFieldName="Key"
+                                    Data="Property.AvailableDictionary" @bind-Value="ItemData.StringValue"
+                                    ReadOnly="Property.Readonly" Enabled="!Property.Disabled"
+                                    CssClass="@RgfFormItem.CssClass" Id="@Id" />
+                    }
+                    break;
+
+                case PropertyFormType.Date:
+                    <DxDateEdit T="DateTime?" @bind-Date="ItemData.DateTimeValue"
+                                Mask="@DateTimeMask.ShortDate"
+                                ReadOnly="Property.Readonly" Enabled="!Property.Disabled"
+                                CssClass="@RgfFormItem.CssClass" Id="@Id" />
+                    break;
+
+                case PropertyFormType.DateTime:
+                    <DxDateEdit T="DateTime?" @bind-Date="ItemData.DateTimeValue"
+                                Mask="@DateTimeMask.ShortDateTime"
+                                ReadOnly="Property.Readonly" Enabled="!Property.Disabled"
+                                CssClass="@RgfFormItem.CssClass" Id="@Id" />
+                    break;
+
+                case PropertyFormType.StaticText:
+                    <div class="@RgfFormItem.CssClass" style="@Property.Style">
+                        @(ItemData.StringValue)
+                    </div>
+                    break;
+
+                case PropertyFormType.ImageInDB:
+                    <img src="@($"{ApiService.BaseAddress}{ItemData.StringValue}")" class="@RgfFormItem.CssClass" style="@Property.Style" />
+                    break;
+
+                case PropertyFormType.RecroDict:
+                    <div class="@RgfFormItem.CssClass" style="@Property.Style">
+                        @((MarkupString)ItemData.StringValue)
+                    </div>
+                    break;
+
+                case PropertyFormType.HtmlEditor:
+                    <InputTextArea @bind-Value="@ItemData.StringValue"
+                                   readonly="@Property.Readonly" disabled="@Property.Disabled"
+                                   class="@RgfFormItem.CssClass" id="@Id" />
+                    break;
+
+                case PropertyFormType.RecroGrid:
+                    <div class="@RgfFormItem.CssClass" style="@Property.Style">
+                        @if (this.FormComponent.FormEditMode == FormEditMode.Create)
+                        {
+                            <div class="card">
+                                <div class="card-header">
+                                    @Property.Label
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            @RgfEntityComponent.Create(new RgfEntityParameters(Property.ForeignEntity.EntityName, FormComponent.Manager.SessionParams) { GridId = ItemData.StringValue})
+                        }
+                    </div>
+                    break;
+
+                case PropertyFormType.Entity:
+                case PropertyFormType.Invalid:
+                case PropertyFormType.ListBox:
+                case PropertyFormType.Custom:
+                default:
+                    break;
+            }
+
+            @RgfFormItem.ItemValidationMessage
+        </DxFormLayoutItem>
+
+    </ItemTemplate>
+</RgfFormItemComponent>
+
+@code {
+
+    [Parameter, EditorRequired]
+    public RgfFormItemParameters FormItemParameters { get; set; } = null!;
+
+    [CascadingParameter]
+    public EditContext CurrentEditContext { get; set; } = null!;
+
+    protected RgfFormComponent FormComponent => FormItemParameters.FormComponent;
+    protected RgfForm.Property Property => FormItemParameters.Property;
+    protected RgfDynamicData ItemData => FormItemParameters.ItemData;
+
+    protected RgfProperty PropertyDesc => Property.PropertyDesc;
+    protected string Id { get; set; } = DynamicComponentWrapper.GetNextId();
+    protected string? Label => !Property.EmbededGrid && !Property.NoLabel && (PropertyDesc.FormType != PropertyFormType.CheckBox || Property.AvailableItems?.Any() == true) ? Property.Label : null;
+}

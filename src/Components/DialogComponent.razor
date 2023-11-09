@@ -1,0 +1,53 @@
+﻿<DxPopup Visible="true" ShowFooter="true"
+         AllowDrag="true" AllowResize="DialogParameters.Resizable ?? false"
+         CloseOnEscape="true"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="DialogParameters.ShowCloseButton ?? false" Closing="OnClose"
+         CssClass="@DialogParameters.CssClass" FooterCssClass="d-block"
+         Width="@(DialogParameters.Width ?? "auto")"
+         Height="@DialogParameters.Height">
+    <HeaderContentTemplate>
+        @DialogParameters.Header
+    </HeaderContentTemplate>
+    <BodyContentTemplate>
+        @DialogParameters.Content
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="popupElementInfo">
+        @if (DialogParameters.FooterTemplate != null)
+        {
+            @DialogParameters.FooterTemplate
+        }
+        @if (DialogParameters.PredefinedButtons != null)
+        {
+            <div class="d-flex justify-content-end">
+                @foreach (var button in DialogParameters.PredefinedButtons)
+                {
+                    <DxButton RenderStyle="@(button.IsPrimary ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)" CssClass="my-1 ms-2" Click="button.Callback">
+                        @if (!string.IsNullOrEmpty(button.ChildText))
+                        {
+                            @button.ChildText
+                        }
+                        else if (button.ChildContent != null)
+                        {
+                            @button.ChildContent
+                        }
+                    </DxButton>
+                }
+            </div>
+        }
+    </FooterContentTemplate>
+</DxPopup>
+
+@code {
+
+    [Parameter, EditorRequired]
+    public RgfDialogParameters DialogParameters { get; set; } = null!;
+
+    private void OnClose(PopupClosingEventArgs args)
+    {
+        if (DialogParameters.OnClose != null)
+        {
+            args.Cancel = DialogParameters.OnClose.Invoke() == false;
+        }
+    }
+}

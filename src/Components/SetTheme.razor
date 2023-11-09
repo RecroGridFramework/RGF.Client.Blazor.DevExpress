@@ -1,0 +1,34 @@
+﻿<DxComboBox TValue="string" TData="KeyValuePair<string, string>" TextFieldName="Value" ValueFieldName="Key"
+            Data="Themes" @bind-Value="ThemeName" SelectedItemChanged="OnThemeChange" />
+
+@inject IJSRuntime _jsRuntime
+@code {
+
+    [Parameter]
+    public string ThemeName { get; set; } = "blazing-berry.bs5";
+
+    private IJSObjectReference? _module;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var libName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
+            _module = await _jsRuntime.InvokeAsync<IJSObjectReference>("import", $"{RgfClientConfiguration.AppRootUrl}_content/{libName}/scripts/devexpress-theme.js");
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private void OnThemeChange(KeyValuePair<string, string> value)
+    {
+        _module?.InvokeVoidAsync("setTheme", value.Key, RgfClientConfiguration.AppRootUrl);
+    }
+
+    private Dictionary<string, string> Themes = new() 
+    {
+        { "blazing-berry.bs5", "Blazing Berry" },
+        { "blazing-dark.bs5", "Blazing Dark" },
+        { "purple.bs5", "Purple" },
+        { "office-white.bs5", "Office White" },
+    };
+}

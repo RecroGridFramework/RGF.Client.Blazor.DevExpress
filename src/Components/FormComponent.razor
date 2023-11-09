@@ -1,0 +1,75 @@
+﻿
+<RgfFormComponent @ref="_rgfFormRef" EntityParameters="EntityParameters"
+                  FormGroupLayoutTemplate="FormGroupLayoutTemplate"
+                  FormItemLayoutTemplate="FormItemLayoutTemplate">
+    <FormTemplate Context="RgfForm">
+        <EditForm EditContext="RgfForm.CurrentEditContext">
+            <DxTabs RenderMode="TabsRenderMode.OnDemand">
+                @foreach (var tab in RgfForm.FormData.FormTabs)
+                {
+                    <DxTabPage Text="@tab.Title">
+                        <DxFormLayout CaptionPosition="CaptionPosition.Vertical" CssClass="w-100">
+                            @foreach (var group in tab.Groups)
+                            {
+                                if (!string.IsNullOrEmpty(group.Title))
+                                {
+                                    <h5 class="mt-3 ms-3">@group.Title</h5>
+                                }
+                                @RgfForm.GetFormGroupLayoutTemplate(new RgfFormGroupLayoutParameters(RgfForm, group))
+                            }
+                        </DxFormLayout>
+                    </DxTabPage>
+                }
+            </DxTabs>
+            @RgfForm.GetFormValidationTemplate()
+        </EditForm>
+    </FormTemplate>
+
+    <FormItemTemplate>
+        <FormItemComponent FormItemParameters="context" />
+    </FormItemTemplate>
+
+    <FormValidationTemplate Context="RgfForm">
+        <div class="card mt-3">
+            <div class="card-body">
+                <DxFormLayout>
+                    <DxFormLayoutItem ColSpanMd="12">
+                        <ValidationSummary />
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </div>
+        </div>
+    </FormValidationTemplate>
+
+</RgfFormComponent>
+
+@inject IJSRuntime _jsRuntime
+@code {
+
+    [Parameter, EditorRequired]
+    public RgfEntityParameters EntityParameters { get; set; } = null!;
+
+    private IRgManager Manager => EntityParameters.Manager!;
+    private RgfFormParameters FormParameters { get => EntityParameters.FormParameters; }
+    protected IRecroDictService RecroDict => Manager.RecroDict;
+
+    private RgfFormComponent _rgfFormRef { get; set; } = null!;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        FormParameters.ErrorCssClass = FormParameters.ErrorCssClass ?? "is-invalid";
+        FormParameters.ModifiedCssClass = FormParameters.ModifiedCssClass ?? "is-valid";
+    }
+
+    public RenderFragment<RgfFormGroupLayoutParameters> FormGroupLayoutTemplate => (param) =>
+    @<DxFormLayoutGroup Caption="" Decoration="FormLayoutGroupDecoration.None" BeginRow="true" CssClass="mt-3">
+        @foreach (var prop in param.FormGroup.Properties)
+        {
+            @param.FormComponent.GetFormItemLayoutTemplate(new RgfFormItemParameters(_rgfFormRef, param.FormGroup, prop))
+        }
+    </DxFormLayoutGroup>;
+
+    public RenderFragment<RgfFormItemParameters> FormItemLayoutTemplate => (param) =>
+        param.FormComponent.GetFormItemTemplate(param);
+}

@@ -1,0 +1,155 @@
+﻿
+<ul class="list-unstyled ps-4">
+    @for (int idx = 0; idx < Condition.Conditions?.Count; idx++)
+    {
+        var item = Condition.Conditions[idx];
+        <li>
+            <div class="d-flex flex-row align-items-center">
+                <div class="p-1">
+                    <DxComboBox TValue="RgfFilter.LogicalOperator" TData="KeyValuePair<RgfFilter.LogicalOperator, string>" TextFieldName="Value" ValueFieldName="Key"
+                                Data="LogicalOperators" @bind-Value="item.LogicalOperator" Enabled="idx != 0" />
+                </div>
+                <div class="p-1">
+                    <DxButton SizeMode="SizeMode.Small" RenderStyleMode="@ButtonRenderStyleMode.Outline" RenderStyle="ButtonRenderStyle.Secondary" IconCssClass="dx-icon-trash" Click="() => OnRemoveCondition(item)" />
+                </div>
+                <div class="p-1">
+                    <DxButton SizeMode="SizeMode.Small" RenderStyleMode="@ButtonRenderStyleMode.Outline" RenderStyle="ButtonRenderStyle.Secondary" Text="{ }" Click="() => OnAddBracket(item)" />
+                </div>
+                @if (item.Conditions != null)
+                {
+                    <div class="p-1">
+                        <DxButton SizeMode="SizeMode.Small" RenderStyle="ButtonRenderStyle.Warning" Click="() => OnRemoveBracket(item)" title="@RecroDict.GetRgfUiString("Delete")">
+                            <sup>@item.ClientId</sup><span>(</span>
+                        </DxButton>
+                    </div>
+                }
+                else
+                {
+                    <div class="p-1">
+                        <DxComboBox TValue="int" TData="KeyValuePair<int, string>" TextFieldName="Value" ValueFieldName="Key"
+                                    Data="Columns" Value="item.PropertyId" ValueChanged="(value) => OnChangeProperty(value, item)" />
+                    </div>
+                    <div class="p-1">
+                        <DxComboBox TValue="RgfFilter.QueryOperator" TData="KeyValuePair<RgfFilter.QueryOperator, string>" TextFieldName="Value" ValueFieldName="Key"
+                                    Data="GetQueryOperators(item)" Value="item.QueryOperator" ValueChanged="(value) => OnChangeQueryOperator(value, item)" />
+                    </div>
+                    @if (!(new[] { RgfFilter.QueryOperator.IsNull, RgfFilter.QueryOperator.IsNotNull, RgfFilter.QueryOperator.Exists }.Contains(item.QueryOperator)))
+                    {
+                        var prop = FilterComponent.RgfFilterProperties.Single(e => e.Id == item.PropertyId);
+                        <div class="p-1">
+                            @switch (prop.ClientDataType)
+                            {
+                                case ClientDataType.Integer:
+                                    <DxSpinEdit T="int?" @bind-Value="item.IntValue1" />
+                                    break;
+
+                                case ClientDataType.Decimal:
+                                    <DxSpinEdit T="decimal?" @bind-Value="item.DecimalValue1" ShowSpinButtons="false" />
+                                    break;
+
+                                case ClientDataType.Double:
+                                    <DxSpinEdit T="double?" @bind-Value="item.DoubleValue1" ShowSpinButtons="false" />
+                                    break;
+
+                                case ClientDataType.DateTime:
+                                    <DxDateEdit T="DateTime?" @bind-Value="item.DateTimeValue1" Mask="@(prop.FormType == PropertyFormType.Date ? DateTimeMask.ShortDate : DateTimeMask.ShortDateTime)" />
+                                    break;
+
+                                case ClientDataType.Boolean:
+                                    <DxCheckBox @bind-Checked="item.BooleanValue1" />
+                                    break;
+
+                                default:
+                                    if (prop.FormType == PropertyFormType.DropDown || prop.FormType == PropertyFormType.ListBox)
+                                    {
+                                        <DxListBox TValue="string" TData="KeyValuePair<string, string>" TextFieldName="Value" ValueFieldName="Key" CssClass="listbox-multi"
+                                                   Data="prop.Dictionary" SelectionMode="ListBoxSelectionMode.Multiple" ShowCheckboxes="true"
+                                                   Values="item.StringArray1.ToList()" ValuesChanged="(value) => item.StringArray1 = value.ToArray()" />
+                                    }
+                                    else
+                                    {
+                                        <DxTextBox @bind-Text="item.StringValue1" />
+                                    }
+                                    break;
+                            }
+                        </div>
+                        @if (new[] { RgfFilter.QueryOperator.Interval, RgfFilter.QueryOperator.IntervalE }.Contains(item.QueryOperator))
+                        {
+                            <div class="p-1">
+                                @switch (prop.ClientDataType)
+                                {
+                                    case ClientDataType.Integer:
+                                        <DxSpinEdit T="int?" @bind-Value="item.IntValue2" />
+                                        break;
+
+                                    case ClientDataType.Decimal:
+                                        <DxSpinEdit T="decimal?" @bind-Value="item.DecimalValue2" ShowSpinButtons="false" />
+                                        break;
+
+                                    case ClientDataType.Double:
+                                        <DxSpinEdit T="double?" @bind-Value="item.DoubleValue2" ShowSpinButtons="false" />
+                                        break;
+
+                                    case ClientDataType.DateTime:
+                                        <DxDateEdit T="DateTime?" @bind-Value="item.DateTimeValue2" Mask="@(prop.FormType == PropertyFormType.Date ? DateTimeMask.ShortDate : DateTimeMask.ShortDateTime)" />
+                                        break;
+
+                                    default:
+                                        <DxTextBox @bind-Text="item.StringValue2" />
+                                        break;
+                                }
+                            </div>
+                        }
+                        @if (new[] { RgfFilter.QueryOperator.Like, RgfFilter.QueryOperator.NotLike }.Contains(item.QueryOperator))
+                        {
+                            <div class="p-1">
+                                <DxCheckBox @bind-Checked="item.ToLower">ToLower</DxCheckBox>
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        </li>
+        @if (item.Conditions != null)
+        {
+            <li>
+                <FilterConditionComponent FilterComponent="FilterComponent" Condition="item" />
+            </li>
+            <li>
+                <div>
+                    <DxButton SizeMode="SizeMode.Small" RenderStyle="ButtonRenderStyle.Warning" Click="() => OnRemoveBracket(item)" title="@RecroDict.GetRgfUiString("Delete")">
+                        <span>)</span><sup>@item.ClientId</sup>
+                    </DxButton>
+                </div>
+            </li>
+        }
+    }
+    <li>
+        <div class="p-1">
+            <DxButton SizeMode="SizeMode.Small" RenderStyleMode="@ButtonRenderStyleMode.Outline" RenderStyle="ButtonRenderStyle.Primary" IconCssClass="dx-icon-plus" Click="() => OnAddCondition(Condition)" />
+        </div>
+    </li>
+</ul>
+
+@code {
+
+    [Parameter, EditorRequired]
+    public RgfFilterComponent FilterComponent { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public RgfFilter.Condition Condition { get; set; } = null!;
+
+    private IRgManager Manager => FilterComponent.EntityParameters.Manager!;
+    private IRecroDictService RecroDict => Manager.RecroDict;
+
+    private Dictionary<int, string> Columns => FilterComponent.RgfFilterProperties.ToDictionary(p => p.Id, p => p.ColTitle);
+    private Dictionary<RgfFilter.LogicalOperator, string> LogicalOperators => RgfFilter.GetLogicalOperators(RecroDict);
+    private Dictionary<RgfFilter.QueryOperator, string> GetQueryOperators(RgfFilter.Condition condition) => RgfFilter.GetQueryOperators(FilterComponent.RgfFilterProperties.SingleOrDefault(e => e.Id == condition.PropertyId)?.Operators, RecroDict);
+
+    private void OnAddCondition(RgfFilter.Condition condition) => FilterComponent.AddCondition(condition);
+    private void OnRemoveCondition(RgfFilter.Condition condition) => FilterComponent.RemoveCondition(condition);
+    private void OnAddBracket(RgfFilter.Condition condition) => FilterComponent.AddBracket(condition);
+    private void OnRemoveBracket(RgfFilter.Condition condition) => FilterComponent.RemoveBracket(condition);
+    private void OnChangeQueryOperator(RgfFilter.QueryOperator value, RgfFilter.Condition condition) => FilterComponent.ChangeQueryOperator(condition, value);
+    private void OnChangeProperty(int value, RgfFilter.Condition condition) => FilterComponent.ChangeProperty(condition, value);
+}
