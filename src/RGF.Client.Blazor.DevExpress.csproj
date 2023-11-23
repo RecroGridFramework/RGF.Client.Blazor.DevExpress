@@ -34,11 +34,14 @@
 
   <ItemGroup>
     <PackageReference Include="DevExpress.Blazor" Version="23.1.4" />
-    <PackageReference Include="Recrovit.RecroGridFramework.Client.Blazor" Version="8.0.0-preview" Condition="'$(Configuration)'=='Release'" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\RGF.Client.Blazor\src\RGF.Client.Blazor.csproj" Condition="'$(Configuration)'=='Debug'" />
+  <ItemGroup Condition="'$(Configuration)'=='Release'">
+    <PackageReference Include="Recrovit.RecroGridFramework.Client.Blazor" Version="8.0.0-preview" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)'=='Debug'" >
+    <ProjectReference Include="..\..\RGF.Client.Blazor\src\RGF.Client.Blazor.csproj" />
   </ItemGroup>
 
   <ItemGroup>
