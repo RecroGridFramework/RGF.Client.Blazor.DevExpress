@@ -14,6 +14,8 @@
     <Copyright>© Recrovit Kft. All rights reserved.</Copyright>
     <Version>8.0.0-preview</Version>
     <FileVersion>$(Version).1$([System.DateTime]::Now.ToString(MMdd))</FileVersion>
+    <InformationalVersion>$(FileVersion)</InformationalVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -46,10 +48,7 @@
 
   <ItemGroup>
     <None Include="..\.gitignore" />
-    <None Include="..\README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
+    <None Include="..\README.*" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
