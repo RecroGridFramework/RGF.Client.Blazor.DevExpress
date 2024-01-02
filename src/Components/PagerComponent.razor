@@ -1,0 +1,85 @@
+﻿<RgfPagerComponent @ref="_rgfPagerRef" EntityParameters="EntityParameters">
+    <PagerTemplate Context="RgfPager">
+        <div class="card p-1">
+            <DxToolbar AdaptivityMinRootItemCount="100">
+                <Items>
+                    @if (RgfPager.ItemCount != 0)
+                    {
+                        <DxToolbarItem BeginGroup="true" Tooltip="@RecroDict.GetRgfUiString("First")" IconCssClass="dx-icon-chevrondoubleleft" Enabled="RgfPager.CurrentPage > 1"
+                                       Click="(args) => OnShowFirstPage(args.MouseEventArgs)" />
+                        <DxToolbarItem Tooltip="@RecroDict.GetRgfUiString("Prev")" IconCssClass="dx-icon-chevronprev" Enabled="RgfPager.CurrentPage > 1"
+                                       Click="(args) => OnShowPreviousPage(args.MouseEventArgs)" />
+
+                        <DxToolbarItem>
+                            <div style="@($"width:{CalcWidth(RgfPager.CurrentPage)}")">
+                                <DxSpinEdit T="int" Value="@RgfPager.CurrentPage" ValueExpression="() => RgfPager.CurrentPage" ValueChanged="RgfPager.PageChanging"
+                                            ShowSpinButtons="false" MinValue="1" MaxValue="RgfPager.TotalPages > 0 ? RgfPager.TotalPages : 1" />
+                            </div>
+                        </DxToolbarItem>
+
+                        <DxToolbarItem Tooltip="@RecroDict.GetRgfUiString("Next")" IconCssClass="dx-icon-chevronright" Enabled="RgfPager.CurrentPage != RgfPager.TotalPages"
+                                       Click="(args) => OnShowNextPage(args.MouseEventArgs)" />
+                        @if (RgfPager.ItemCount > 0)
+                        {
+                            <DxToolbarItem Tooltip="@RecroDict.GetRgfUiString("Last")" IconCssClass="dx-icon-chevrondoubleright" Enabled="RgfPager.CurrentPage != RgfPager.TotalPages"
+                                           Click="(args) => OnShowLastPage(args.MouseEventArgs)" />
+
+                            <DxToolbarItem BeginGroup="true" Checked="true">
+                                <label>@RecroDict.GetRgfUiString("PageCount")</label>
+                                <div class="ps-1" style="@($"width:{CalcWidth(RgfPager.TotalPages)}")">
+                                    <DxSpinEdit Value="RgfPager.TotalPages" ValueExpression="() => RgfPager.TotalPages" ReadOnly="true" ShowSpinButtons="false" />
+                                </div>
+                            </DxToolbarItem>
+
+                            <DxToolbarItem Checked="true">
+                                <label>@RecroDict.GetRgfUiString("ItemCount")</label>
+                                <div class="ps-1" style="@($"width:{CalcWidth(RgfPager.ItemCount)}")">
+                                    <DxSpinEdit Value="@RgfPager.ItemCount" ValueExpression="() => RgfPager.ItemCount" ReadOnly="true" ShowSpinButtons="false" />
+                                </div>
+                            </DxToolbarItem>
+                        }
+
+                        if (Manager.EntityDesc.Options.GetBoolValue("RGO_ClientMode") != true)
+                        {
+                            <DxToolbarItem BeginGroup="true" Checked="true">
+                                <label>@RecroDict.GetRgfUiString("ItemsPerPage")</label>
+                                <div class="ps-1" style="@($"width:{CalcWidth(RgfPager.PageSize * 100)}")">
+                                    <DxComboBox TValue="int" TData="int" AllowUserInput="true"
+                                                Data="@(new int[] { 5, 10, 15, 25 })" Value="@RgfPager.PageSize" ValueExpression="() => RgfPager.PageSize" TextChanged="RgfPager.PageSizeChanging" />
+                                </div>
+                            </DxToolbarItem>
+                        }
+                    }
+                    else
+                    {
+                        <DxToolbarItem Checked="true">
+                            <label>@RecroDict.GetRgfUiString("ItemCount")</label>
+                            <div class="ps-1" style="@($"width:{CalcWidth(RgfPager.ItemCount)}")">
+                                <DxSpinEdit Value="@RgfPager.ItemCount" ValueExpression="() => RgfPager.ItemCount" ReadOnly="true" ShowSpinButtons="false" />
+                            </div>
+                        </DxToolbarItem>
+                    }
+                </Items>
+            </DxToolbar>
+        </div>
+    </PagerTemplate>
+</RgfPagerComponent>
+
+@code {
+
+    [Parameter, EditorRequired]
+    public RgfEntityParameters EntityParameters { get; set; } = null!;
+
+    private IRgManager Manager => EntityParameters.Manager!;
+    private RgfPagerParameters PagerParameters { get => EntityParameters.PagerParameters; }
+    private IRecroDictService RecroDict => Manager.RecroDict;
+
+    private RgfPagerComponent _rgfPagerRef { get; set; } = null!;
+
+    private void OnShowFirstPage(MouseEventArgs args) => _rgfPagerRef.PageChanging(1);
+    private void OnShowNextPage(MouseEventArgs args) => _rgfPagerRef.PageChanging(_rgfPagerRef.CurrentPage + 1);
+    private void OnShowPreviousPage(MouseEventArgs args) => _rgfPagerRef.PageChanging(_rgfPagerRef.CurrentPage - 1);
+    private void OnShowLastPage(MouseEventArgs args) => _rgfPagerRef.PageChanging(_rgfPagerRef.TotalPages);
+
+    private string CalcWidth(int page) => page < 100 ? "54px" : page < 1E4 ? "74px" : "114px";
+}

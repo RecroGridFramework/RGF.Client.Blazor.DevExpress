@@ -1,0 +1,51 @@
+﻿
+<RgfGridComponent @ref="_rgfGridRef" EntityParameters="EntityParameters">
+    <GridTemplate Context="RgfGrid">
+        @if (_initialized)
+        {
+            <DxGrid @ref="_dxGridRef" Data="@RgfGrid.GridData"
+                    CustomizeElement="OnCustomizeElement"
+                    AllowSort="true" CustomSort="OnCustomSort"
+                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                    RowClick="OnRowClick" RowDoubleClick="OnRowDoubleClick">
+                <Columns>
+                    @foreach (var prop in EntityDesc.SortedVisibleColumns)
+                    {
+                        <DxGridDataColumn FieldName="@prop.Alias" Name="@prop.ClientName" Caption="@prop.ColTitle"
+                                          AllowSort="@prop.Orderable" SortMode="GridColumnSortMode.Custom"
+                                          SortIndex="@(prop.Sort == 0 ? -1 : Math.Abs(prop.Sort))" SortIndexChanged="(arg) => Recreate()"
+                                  SortOrder="@(prop.Sort > 0 ? GridColumnSortOrder.Ascending : GridColumnSortOrder.Descending)" SortOrderChanged="(arg) => Recreate()"
+                                          VisibleIndexChanged="async (arg) => await OnVisibleIndexChanged(prop,  arg)" WidthChanged="(arg) => OnWidthChanged(prop,  arg)"
+                                          UnboundType="GridUnboundColumnType.Object"
+                                          Width="@(prop.ColWidth > 0 ? $"{prop.ColWidth}px" : null)">
+                            <CellDisplayTemplate>
+                                @RgfGrid.CreateGridColumn(prop, (RgfDynamicDictionary)context.DataItem)
+                            </CellDisplayTemplate>
+                        </DxGridDataColumn>
+                    }
+                </Columns>
+            </DxGrid>
+        }
+    </GridTemplate>
+
+    <ColumnSettingsTemplate>
+        <GridColumnSettingsComponent GridComponent="context" />
+    </ColumnSettingsTemplate>
+</RgfGridComponent>
+
+<style>
+
+    table.dxbl-grid-table.recro-grid {
+        width: auto;
+    }
+
+</style>
+
+@code {
+
+    [Parameter, EditorRequired]
+    public RgfEntityParameters EntityParameters { get; set; } = null!;
+
+    private IRgManager Manager => EntityParameters.Manager!;
+    private RgfGridParameters GridParameters { get => EntityParameters.GridParameters; }
+}
