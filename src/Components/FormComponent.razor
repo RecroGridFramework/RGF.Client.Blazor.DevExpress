@@ -4,7 +4,7 @@
                   FormItemLayoutTemplate="FormItemLayoutTemplate">
     <FormTemplate Context="RgfForm">
         <EditForm EditContext="RgfForm.CurrentEditContext">
-            <DxTabs RenderMode="TabsRenderMode.OnDemand">
+            <DxTabs RenderMode="TabsRenderMode.OnDemand" ActiveTabIndex="ActiveTabIndex" ActiveTabIndexChanged="ActivateTab">
                 @foreach (var tab in RgfForm.FormData.FormTabs)
                 {
                     <DxTabPage Text="@tab.Title">
@@ -53,6 +53,8 @@
     protected IRecroDictService RecroDict => Manager.RecroDict;
 
     private RgfFormComponent _rgfFormRef { get; set; } = null!;
+    public int ActiveTabIndex { get; private set; } = 0;
+    public HashSet<int> PreviouslyActiveTabs { get; private set; } = new() { 0 };
 
     protected override void OnInitialized()
     {
@@ -71,4 +73,10 @@
 
     public RenderFragment<RgfFormItemParameters> FormItemLayoutTemplate => (param) =>
         param.BaseFormComponent.GetFormItemTemplate(param);
+
+    private void ActivateTab(int index)
+    {
+        ActiveTabIndex = index;
+        PreviouslyActiveTabs.Add(index);
+    }
 }
