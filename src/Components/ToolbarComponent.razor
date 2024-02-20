@@ -4,6 +4,12 @@
         <div class="card p-1">
             <DxToolbar AdaptivityMinRootItemCount="100">
                 <Items>
+                    @if (RgfToolbar.CustomMenu != null)
+                    {
+                        <DxToolbarItem BeginGroup="true" Tooltip="@RecroDict.GetRgfUiString("CustomFunctions")" CssClass="toolbar-menu">
+                            @RgfToolbar.CreateCustomMenu("dx-icon-bulletlist")
+                        </DxToolbarItem>
+                    }
                     @if (Manager.EntityDesc.Options.GetBoolValue("RGO_ClientMode") != true)
                     {
                         <DxToolbarItem BeginGroup="true" IconCssClass="dx-icon-refresh" Tooltip="@RecroDict.GetRgfUiString("Refresh")" Click="(arg) => RgfToolbar.OnToolbarCommand(ToolbarAction.Refresh)" />
