@@ -52,7 +52,7 @@
                                     break;
 
                                 case ClientDataType.DateTime:
-                                    <DxDateEdit T="DateTime?" @bind-Value="item.DateTimeValue1" Mask="@(prop.FormType == PropertyFormType.Date ? DateTimeMask.ShortDate : DateTimeMask.ShortDateTime)" />
+                                    <DxDateEdit T="DateTime?" @bind-Date="item.DateTimeValue1" Mask="@(prop.FormType == PropertyFormType.Date ? DateTimeMask.ShortDate : DateTimeMask.ShortDateTime)" />
                                     break;
 
                                 case ClientDataType.Boolean:
@@ -75,6 +75,7 @@
                         </div>
                         @if (new[] { RgfFilter.QueryOperator.Interval, RgfFilter.QueryOperator.IntervalE }.Contains(item.QueryOperator))
                         {
+                            <span>-</span>
                             <div class="p-1">
                                 @switch (prop.ClientDataType)
                                 {
@@ -91,7 +92,7 @@
                                         break;
 
                                     case ClientDataType.DateTime:
-                                        <DxDateEdit T="DateTime?" @bind-Value="item.DateTimeValue2" Mask="@(prop.FormType == PropertyFormType.Date ? DateTimeMask.ShortDate : DateTimeMask.ShortDateTime)" />
+                                        <DxDateEdit T="DateTime?" @bind-Date="item.DateTimeValue2" Mask="@(prop.FormType == PropertyFormType.Date ? DateTimeMask.ShortDate : DateTimeMask.ShortDateTime)" />
                                         break;
 
                                     default:
