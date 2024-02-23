@@ -112,35 +112,33 @@ public partial class GridComponent : ComponentBase, IDisposable
         var rowData = arg.Args.RowData ?? throw new ArgumentException();
         foreach (var prop in EntityDesc.SortedVisibleColumns)
         {
-            var attr = rowData["__attributes"] as RgfDynamicDictionary;
-            if (attr != null)
+            string? propClass = null;
+            if (prop.FormType == PropertyFormType.CheckBox)
             {
-                string? propAttr = null;
-                if (prop.FormType == PropertyFormType.CheckBox)
+                propClass = "rg-center";
+            }
+            else
+            {
+                switch (prop.ListType)
                 {
-                    propAttr = " rg-center";
-                }
-                else
-                {
-                    switch (prop.ListType)
-                    {
-                        case PropertyListType.Numeric:
-                            propAttr = " rg-numeric";
-                            break;
+                    case PropertyListType.Numeric:
+                        propClass = "rg-numeric";
+                        break;
 
-                        case PropertyListType.String:
-                            propAttr = " rg-string";
-                            break;
+                    case PropertyListType.String:
+                        propClass = "rg-string";
+                        break;
 
-                        case PropertyListType.Image:
-                            propAttr = " rg-html";
-                            break;
-                    }
+                    case PropertyListType.Image:
+                        propClass = "rg-html";
+                        break;
                 }
-                if (propAttr != null)
-                {
-                    attr[$"class-{prop.Alias}"] += propAttr;
-                }
+            }
+            if (propClass != null)
+            {
+                var attributes = rowData.GetOrNew<RgfDynamicDictionary>("__attributes");
+                var propAttributes = attributes.GetOrNew<RgfDynamicDictionary>(prop.Alias);
+                propAttributes.Set<string>("class", (old) => string.IsNullOrEmpty(old) ? propClass : $"{old.Trim()} {propClass}");
             }
         }
         return Task.CompletedTask;
@@ -148,37 +146,44 @@ public partial class GridComponent : ComponentBase, IDisposable
 
     protected virtual void OnCustomizeElement(GridCustomizeElementEventArgs args)
     {
-        var rowData = (RgfDynamicDictionary)args.Grid.GetDataItem(args.VisibleIndex);
+        var rowData = args.Grid.GetDataItem(args.VisibleIndex) as RgfDynamicDictionary;
         if (rowData != null)
         {
-            var attributes = (RgfDynamicDictionary)rowData["__attributes"];
-            if (args.ElementType == GridElementType.DataRow)
+            var attributes = rowData.Get<RgfDynamicDictionary>("__attributes");
+            if(attributes != null)
             {
-                var attr = attributes.GetItemData("class").StringValue;
-                if (attr != null)
+                if (args.ElementType == GridElementType.DataRow)
                 {
-                    args.CssClass = attr;
-                }
-                attr = attributes.GetItemData("style").StringValue;
-                if (attr != null)
-                {
-                    args.Style = attr;
-                }
-            }
-            else if (args.ElementType == GridElementType.DataCell)
-            {
-                var prop = EntityDesc.Properties.SingleOrDefault(e => e.ClientName == args.Column.Name);
-                if (prop?.ColPos > 0)
-                {
-                    var attr = attributes.GetItemData($"class-{prop.Alias}").StringValue;
-                    if (attr != null)
+                    var val = attributes.Get<string>("class");
+                    if (val != null)
                     {
-                        args.CssClass = attr;
+                        args.CssClass = val;
                     }
-                    attr = attributes.GetItemData($"style-{prop.Alias}").StringValue;
-                    if (attr != null)
+                    val = attributes.Get<string>("style");
+                    if (val != null)
                     {
-                        args.Style = attr;
+                        args.Style = val;
+                    }
+                }
+                else if (args.ElementType == GridElementType.DataCell)
+                {
+                    var prop = EntityDesc.Properties.SingleOrDefault(e => e.ClientName == args.Column.Name);
+                    if (prop?.ColPos > 0)
+                    {
+                        var propAttributes = attributes.Get<RgfDynamicDictionary>(prop.Alias);
+                        if (propAttributes != null)
+                        {
+                            var val = propAttributes.Get<string>("class");
+                            if (val != null)
+                            {
+                                args.CssClass = val;
+                            }
+                            val = propAttributes.Get<string>($"style");
+                            if (val != null)
+                            {
+                                args.Style = val;
+                            }
+                        }
                     }
                 }
             }
