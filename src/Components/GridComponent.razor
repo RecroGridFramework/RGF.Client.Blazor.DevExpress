@@ -4,6 +4,7 @@
         @if (_initialized)
         {
             <DxGrid @ref="_dxGridRef" Data="@RgfGrid.GridData"
+                    PageSize="RgfGrid.GridData.Count"
                     CustomizeElement="OnCustomizeElement"
                     AllowSort="true" CustomSort="OnCustomSort"
                     ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
@@ -14,7 +15,7 @@
                         <DxGridDataColumn FieldName="@prop.Alias" Name="@prop.ClientName" Caption="@prop.ColTitle"
                                           AllowSort="@prop.Orderable" SortMode="GridColumnSortMode.Custom"
                                           SortIndex="@(prop.Sort == 0 ? -1 : Math.Abs(prop.Sort))" SortIndexChanged="(arg) => Recreate()"
-                                  SortOrder="@(prop.Sort > 0 ? GridColumnSortOrder.Ascending : GridColumnSortOrder.Descending)" SortOrderChanged="(arg) => Recreate()"
+                                          SortOrder="@(prop.Sort > 0 ? GridColumnSortOrder.Ascending : GridColumnSortOrder.Descending)" SortOrderChanged="(arg) => Recreate()"
                                           VisibleIndexChanged="async (arg) => await OnVisibleIndexChanged(prop,  arg)" WidthChanged="(arg) => OnWidthChanged(prop,  arg)"
                                           UnboundType="GridUnboundColumnType.Object"
                                           Width="@(prop.ColWidth > 0 ? $"{prop.ColWidth}px" : null)">

@@ -151,7 +151,7 @@ public partial class GridComponent : ComponentBase, IDisposable
         if (rowData != null)
         {
             var attributes = rowData.Get<RgfDynamicDictionary>("__attributes");
-            if(attributes != null)
+            if (attributes != null)
             {
                 if (args.ElementType == GridElementType.DataRow)
                 {
@@ -193,7 +193,38 @@ public partial class GridComponent : ComponentBase, IDisposable
 
     private void OnCustomSort(GridCustomSortEventArgs args)
     {
-        args.Result = 1;
+        //TODO: Somehow the sorting should be disabled because the server already sends a sorted list.
+        var v1 = (args.DataItem1 as RgfDynamicDictionary)?.GetMember(args.FieldName);
+        var v2 = (args.DataItem2 as RgfDynamicDictionary)?.GetMember(args.FieldName);
+        //_logger.LogDebug("OnCustomSort: {v1},{v2}", v1, v2);
+        //Console.WriteLine($"{args.FieldName}: {v1},{v2}");
+        if (v1 == null && v2 == null)
+        {
+            args.Result = 0;
+        }
+        else if (v1 == null && v2 != null)
+        {
+            args.Result = -1;
+        }
+        else if (v1 != null && v2 == null)
+        {
+            args.Result = 1;
+        }
+        else
+        {
+            try
+            {
+                if (v1!.GetType() == typeof(string))
+                {
+                    args.Result = string.Compare(v1.ToString(), v2!.ToString());
+                }
+                else
+                {
+                    args.Result = v1!.Equals(v2) ? 0 : (dynamic)v1 > (dynamic)v2! ? 1 : -1;
+                }
+            }
+            catch { }
+        }
         args.Handled = true;
     }
 
