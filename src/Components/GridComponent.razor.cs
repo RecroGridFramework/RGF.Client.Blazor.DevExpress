@@ -7,6 +7,7 @@ using Recrovit.RecroGridFramework.Abstraction.Contracts.Services;
 using Recrovit.RecroGridFramework.Abstraction.Models;
 using Recrovit.RecroGridFramework.Client.Blazor.Components;
 using Recrovit.RecroGridFramework.Client.Blazor.Events;
+using Recrovit.RecroGridFramework.Client.Events;
 using Recrovit.RecroGridFramework.Client.Handlers;
 
 namespace Recrovit.RecroGridFramework.Client.Blazor.DevExpressUI.Components;
@@ -24,6 +25,8 @@ public partial class GridComponent : ComponentBase, IDisposable
     private DxGrid _dxGridRef { get; set; } = default!;
 
     private DotNetObjectReference<GridComponent>? _selfRef;
+
+    private List<IDisposable> _disposables { get; set; } = new();
 
     private bool _initialized { get; set; }
 
@@ -45,6 +48,7 @@ public partial class GridComponent : ComponentBase, IDisposable
         await base.OnAfterRenderAsync(firstRender);
         if (firstRender)
         {
+            _disposables.Add(Manager.NotificationManager.Subscribe<RgfToolbarEventArgs>(this, OnToolbarCommand));
         }
         if (_initialized && _selfRef == null)
         {
@@ -85,8 +89,12 @@ public partial class GridComponent : ComponentBase, IDisposable
             _selfRef.Dispose();
             _selfRef = null;
         }
+        if (_disposables != null)
+        {
+            _disposables.ForEach(disposable => disposable.Dispose());
+            _disposables = null!;
+        }
     }
-
     //private void UnboundColumnData(GridUnboundColumnDataEventArgs e) { e.Value = ((RgfDynamicDictionary)e.DataItem).GetMember(e.FieldName); }
 
     private async Task OnVisibleIndexChanged(RgfProperty property, int newIdx)
@@ -296,5 +304,22 @@ public partial class GridComponent : ComponentBase, IDisposable
         args.Grid.SelectRow(args.VisibleIndex);
         var rowData = (RgfDynamicDictionary)args.Grid.GetDataItem(args.VisibleIndex);
         await _rgfGridRef.OnRecordDoubleClickAsync(rowData);
+    }
+
+    private void OnToolbarCommand(IRgfEventArgs<RgfToolbarEventArgs> arg)
+    {
+        switch (arg.Args.Command)
+        {
+            case ToolbarAction.Edit:
+            case ToolbarAction.Read:
+                var data = _rgfGridRef.SelectedItems.Single();
+                int rowIndex = Manager.ListHandler.GetRelativeRowIndex(data);
+                if (rowIndex != -1)
+                {
+                    _dxGridRef.ClearSelection();
+                    _dxGridRef.SelectRow(rowIndex);
+                }
+                break;
+        }
     }
 }

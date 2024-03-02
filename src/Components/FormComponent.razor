@@ -63,6 +63,25 @@
         FormParameters.ModifiedCssClass = FormParameters.ModifiedCssClass ?? "is-valid";
     }
 
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        var rowIndex = FormParameters.FormViewKey.RowIndex;
+        if (rowIndex != -1)
+        {
+            var buttons = new List<ButtonParameters>() {
+                new("dx-icon-chevrondoubleleft", RecroDict.GetRgfUiString("First"), async (arg) => await _rgfFormRef.FirstFormItemAsync()) { Disabled = rowIndex <= 0 },
+                new("dx-icon-chevronleft", RecroDict.GetRgfUiString("Prev"), async (arg) => await _rgfFormRef.PrevFormItemAsync()) { Disabled = rowIndex <= 0 },
+                new("dx-icon-chevronright", RecroDict.GetRgfUiString("Next"), async (arg) => await _rgfFormRef.NextFormItemAsync()) { Disabled = rowIndex + 1 >= Manager.ItemCount.Value },
+                new("dx-icon-chevrondoubleright", RecroDict.GetRgfUiString("Last"), async (arg) => await _rgfFormRef.LastFormItemAsync()) { Disabled = rowIndex + 1 >= Manager.ItemCount.Value } };
+            FormParameters.DialogParameters.LeftButtons = buttons;
+        }
+        else
+        {
+            FormParameters.DialogParameters.LeftButtons = null;
+        }
+    }
+
     public RenderFragment<RgfFormGroupLayoutParameters> FormGroupLayoutTemplate => (param) =>
     @<DxFormLayoutGroup Caption="" Decoration="FormLayoutGroupDecoration.None" BeginRow="true" CssClass="mt-3">
         @foreach (var prop in param.FormGroup.Properties)
