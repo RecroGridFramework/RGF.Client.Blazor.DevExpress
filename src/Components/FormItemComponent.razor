@@ -13,7 +13,7 @@
                                    ReadOnly="Property.Readonly" Enabled="!Property.Disabled"
                                    CssClass="@RgfFormItem.CssClass" Id="@Id">
                             <Buttons>
-                                <DxEditorButton IconCssClass="dx-icon-search" Click="() => RgfFormItem.OnSearchEntity(ItemData.StringValue)" />
+                                <DxEditorButton IconCssClass="dx-icon-search" Click="async () => await RgfFormItem.FindEntityAsync(ItemData.StringValue)" />
                             </Buttons>
                         </DxTextBox>
                     }
