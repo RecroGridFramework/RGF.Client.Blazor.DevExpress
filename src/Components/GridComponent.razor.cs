@@ -25,8 +25,6 @@ public partial class GridComponent : ComponentBase, IDisposable
 
     private DotNetObjectReference<GridComponent>? _selfRef;
 
-    private List<IDisposable> _disposables { get; set; } = new();
-
     private bool _initialized { get; set; }
 
     private Dictionary<string, int> _sort { get; set; } = new();
@@ -47,7 +45,7 @@ public partial class GridComponent : ComponentBase, IDisposable
         await base.OnAfterRenderAsync(firstRender);
         if (firstRender)
         {
-            _disposables.Add(Manager.NotificationManager.Subscribe<RgfToolbarEventArgs>(this, OnToolbarCommand));
+            _rgfGridRef.EntityParameters.ToolbarParameters.EventDispatcher.Subscribe([RgfToolbarEventKind.Read, RgfToolbarEventKind.Edit], OnSetFormItem);
         }
         if (_initialized && _selfRef == null)
         {
@@ -88,11 +86,7 @@ public partial class GridComponent : ComponentBase, IDisposable
             _selfRef.Dispose();
             _selfRef = null;
         }
-        if (_disposables != null)
-        {
-            _disposables.ForEach(disposable => disposable.Dispose());
-            _disposables = null!;
-        }
+        _rgfGridRef.EntityParameters.ToolbarParameters.EventDispatcher.Unsubscribe([RgfToolbarEventKind.Read, RgfToolbarEventKind.Edit], OnSetFormItem);
     }
     //private void UnboundColumnData(GridUnboundColumnDataEventArgs e) { e.Value = ((RgfDynamicDictionary)e.DataItem).GetMember(e.FieldName); }
 
@@ -305,20 +299,14 @@ public partial class GridComponent : ComponentBase, IDisposable
         await _rgfGridRef.OnRecordDoubleClickAsync(rowData);
     }
 
-    private void OnToolbarCommand(IRgfEventArgs<RgfToolbarEventArgs> arg)
+    private void OnSetFormItem(IRgfEventArgs<RgfToolbarEventArgs> arg)
     {
-        switch (arg.Args.Command)
+        var data = _rgfGridRef.SelectedItems.Single();
+        int rowIndex = Manager.ListHandler.GetRelativeRowIndex(data);
+        if (rowIndex != -1)
         {
-            case ToolbarAction.Edit:
-            case ToolbarAction.Read:
-                var data = _rgfGridRef.SelectedItems.Single();
-                int rowIndex = Manager.ListHandler.GetRelativeRowIndex(data);
-                if (rowIndex != -1)
-                {
-                    _dxGridRef.ClearSelection();
-                    _dxGridRef.SelectRow(rowIndex);
-                }
-                break;
+            _dxGridRef.ClearSelection();
+            _dxGridRef.SelectRow(rowIndex);
         }
     }
 }
