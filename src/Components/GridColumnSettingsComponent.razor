@@ -28,10 +28,9 @@
     </SettingsTemplate>
 </RgfGridColumnSettingsComponent>
 
+@inject IRecroDictService RecroDict
 @code {
 
     [Parameter, EditorRequired]
     public RgfGridComponent BaseGridComponent { get; set; } = null!;
-
-    private IRecroDictService RecroDict => BaseGridComponent.Manager.RecroDict;
 }

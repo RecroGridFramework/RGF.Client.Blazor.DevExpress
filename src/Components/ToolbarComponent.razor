@@ -66,6 +66,7 @@
     }
 </style>
 
+@inject IRecroDictService RecroDict
 @code {
 
     [Parameter, EditorRequired]
@@ -73,7 +74,6 @@
 
     private IRgManager Manager => EntityParameters.Manager!;
     private RgfToolbarParameters ToolbarParameters { get => EntityParameters.ToolbarParameters; }
-    private IRecroDictService RecroDict => Manager.RecroDict;
 
     private RgfToolbarComponent _rgfToolbarRef { get; set; } = null!;
 }
