@@ -13,7 +13,7 @@
                                    ReadOnly="Property.Readonly" Enabled="!Property.Disabled"
                                    CssClass="@RgfFormItem.CssClass" Id="@Id">
                             <Buttons>
-                                <DxEditorButton IconCssClass="dx-icon-search" Click="() => RgfFormItem.OnSearchEntity(ItemData.StringValue)" />
+                                <DxEditorButton IconCssClass="dx-icon-search" Click="async () => await RgfFormItem.FindEntityAsync(ItemData.StringValue)" />
                             </Buttons>
                         </DxTextBox>
                     }
@@ -126,7 +126,11 @@
                         }
                         else if (FormComponent.PreviouslyActiveTabs.Contains(PropertyDesc.FormTab - 1) || FormComponent.ActiveTabIndex == PropertyDesc.FormTab - 1)
                         {
-                            @RgfEntityComponent.Create(new RgfEntityParameters(Property.ForeignEntity.EntityName, BaseFormComponent.Manager.SessionParams) { GridId = ItemData.StringValue })
+                            if (_embeddedGrid == null)
+                            {
+                                _embeddedGrid = RgfEntityComponent.Create(new RgfEntityParameters(Property.ForeignEntity.EntityName, BaseFormComponent.Manager.SessionParams) { GridId = ItemData.StringValue });
+                            }
+                            @_embeddedGrid
                         }
                     </div>
                     break;
@@ -159,6 +163,8 @@
     protected RgfDynamicData ItemData => FormItemParameters.ItemData;
 
     protected RgfProperty PropertyDesc => Property.PropertyDesc;
+    private RenderFragment? _embeddedGrid;
+
     protected string Id { get; set; } = DynamicComponentWrapper.GetNextId();
     protected string? Label => !Property.EmbededGrid && !Property.NoLabel && (PropertyDesc.FormType != PropertyFormType.CheckBox || Property.AvailableItems?.Any() == true) ? Property.Label : null;
 }

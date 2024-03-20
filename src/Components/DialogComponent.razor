@@ -18,24 +18,34 @@
         {
             @DialogParameters.FooterTemplate
         }
-        @if (DialogParameters.PredefinedButtons != null)
-        {
-            <div class="d-flex justify-content-end">
-                @foreach (var button in DialogParameters.PredefinedButtons)
+        <div class="d-flex flex-wrap justify-content-between align-items-center">
+            <div class="d-flex justify-content-start">
+                @foreach (var button in DialogParameters.LeftButtons ?? [])
                 {
-                    <DxButton RenderStyle="@(button.IsPrimary ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)" CssClass="my-1 ms-2" Click="button.Callback">
-                        @if (!string.IsNullOrEmpty(button.ChildText))
-                        {
-                            @button.ChildText
-                        }
-                        else if (button.ChildContent != null)
-                        {
-                            @button.ChildContent
-                        }
-                    </DxButton>
+                    @if (string.IsNullOrEmpty(button.ChildText) && button.ChildContent == null)
+                    {
+                        @CreateButton2(button)
+                    }
+                    else
+                    {
+                        @CreateButton(button)
+                    }
                 }
             </div>
-        }
+            <div class="d-flex justify-content-end">
+                @foreach (var button in DialogParameters.PredefinedButtons ?? [])
+                {
+                    @if (string.IsNullOrEmpty(button.ChildText) && button.ChildContent == null)
+                    {
+                        @CreateButton2(button)
+                    }
+                    else
+                    {
+                        @CreateButton(button)
+                    }
+                }
+            </div>
+        </div>
     </FooterContentTemplate>
 </DxPopup>
 
@@ -43,6 +53,23 @@
 
     [Parameter, EditorRequired]
     public RgfDialogParameters DialogParameters { get; set; } = null!;
+
+    private RenderFragment<ButtonParameters> CreateButton => (button) =>
+    @<DxButton RenderStyle="@(button.IsPrimary ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)" title="@button.Title" CssClass="@(button.CssClass ?? "my-1 ms-2")"
+                   IconCssClass="@button.IconName" Enabled="@(!button.Disabled)" Click="button.Callback">
+        @if (!string.IsNullOrEmpty(button.ChildText))
+    {
+        @button.ChildText
+    }
+    else if (button.ChildContent != null)
+    {
+        @button.ChildContent
+    }
+    </DxButton>;
+
+    private RenderFragment<ButtonParameters> CreateButton2 => (button) =>
+    @<DxButton RenderStyle="@(button.IsPrimary ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)" title="@button.Title" CssClass="@(button.CssClass ?? "my-1 ms-2")"
+              IconCssClass="@button.IconName" Enabled="@(!button.Disabled)" Click="button.Callback" />;
 
     private void OnClose(PopupClosingEventArgs args)
     {

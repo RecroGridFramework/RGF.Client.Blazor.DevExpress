@@ -6,7 +6,7 @@ using Microsoft.JSInterop;
 using Recrovit.RecroGridFramework.Abstraction.Contracts.Services;
 using Recrovit.RecroGridFramework.Abstraction.Models;
 using Recrovit.RecroGridFramework.Client.Blazor.Components;
-using Recrovit.RecroGridFramework.Client.Blazor.Events;
+using Recrovit.RecroGridFramework.Client.Events;
 using Recrovit.RecroGridFramework.Client.Handlers;
 
 namespace Recrovit.RecroGridFramework.Client.Blazor.DevExpressUI.Components;
@@ -36,7 +36,7 @@ public partial class GridComponent : ComponentBase, IDisposable
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        GridParameters.EventDispatcher.Subscribe(RgfGridEventKind.CreateAttributes, OnCreateAttributes);
+        GridParameters.EventDispatcher.Subscribe(RgfListEventKind.CreateRowData, OnCreateAttributes);
         _initialized = true;
     }
 
@@ -45,6 +45,7 @@ public partial class GridComponent : ComponentBase, IDisposable
         await base.OnAfterRenderAsync(firstRender);
         if (firstRender)
         {
+            _rgfGridRef.EntityParameters.ToolbarParameters.EventDispatcher.Subscribe([RgfToolbarEventKind.Read, RgfToolbarEventKind.Edit], OnSetFormItem);
         }
         if (_initialized && _selfRef == null)
         {
@@ -85,8 +86,8 @@ public partial class GridComponent : ComponentBase, IDisposable
             _selfRef.Dispose();
             _selfRef = null;
         }
+        _rgfGridRef.EntityParameters.ToolbarParameters.EventDispatcher.Unsubscribe([RgfToolbarEventKind.Read, RgfToolbarEventKind.Edit], OnSetFormItem);
     }
-
     //private void UnboundColumnData(GridUnboundColumnDataEventArgs e) { e.Value = ((RgfDynamicDictionary)e.DataItem).GetMember(e.FieldName); }
 
     private async Task OnVisibleIndexChanged(RgfProperty property, int newIdx)
@@ -107,40 +108,39 @@ public partial class GridComponent : ComponentBase, IDisposable
         }
     }
 
-    protected virtual Task OnCreateAttributes(IRgfEventArgs<RgfGridEventArgs> arg)
+    protected virtual Task OnCreateAttributes(IRgfEventArgs<RgfListEventArgs> arg)
     {
-        var rowData = arg.Args.RowData ?? throw new ArgumentException();
+        _logger.LogDebug("CreateAttributes");
+        var rowData = arg.Args.Data ?? throw new ArgumentException();
         foreach (var prop in EntityDesc.SortedVisibleColumns)
         {
-            var attr = rowData["__attributes"] as RgfDynamicDictionary;
-            if (attr != null)
+            string? propClass = null;
+            if (prop.FormType == PropertyFormType.CheckBox)
             {
-                string? propAttr = null;
-                if (prop.FormType == PropertyFormType.CheckBox)
+                propClass = "rg-center";
+            }
+            else
+            {
+                switch (prop.ListType)
                 {
-                    propAttr = " rg-center";
-                }
-                else
-                {
-                    switch (prop.ListType)
-                    {
-                        case PropertyListType.Numeric:
-                            propAttr = " rg-numeric";
-                            break;
+                    case PropertyListType.Numeric:
+                        propClass = "rg-numeric";
+                        break;
 
-                        case PropertyListType.String:
-                            propAttr = " rg-string";
-                            break;
+                    case PropertyListType.String:
+                        propClass = "rg-string";
+                        break;
 
-                        case PropertyListType.Image:
-                            propAttr = " rg-html";
-                            break;
-                    }
+                    case PropertyListType.Image:
+                        propClass = "rg-html";
+                        break;
                 }
-                if (propAttr != null)
-                {
-                    attr[$"class-{prop.Alias}"] += propAttr;
-                }
+            }
+            if (propClass != null)
+            {
+                var attributes = rowData.GetOrNew<RgfDynamicDictionary>("__attributes");
+                var propAttributes = attributes.GetOrNew<RgfDynamicDictionary>(prop.Alias);
+                propAttributes.Set<string>("class", (old) => string.IsNullOrEmpty(old) ? propClass : $"{old.Trim()} {propClass}");
             }
         }
         return Task.CompletedTask;
@@ -148,37 +148,44 @@ public partial class GridComponent : ComponentBase, IDisposable
 
     protected virtual void OnCustomizeElement(GridCustomizeElementEventArgs args)
     {
-        var rowData = (RgfDynamicDictionary)args.Grid.GetDataItem(args.VisibleIndex);
+        var rowData = args.Grid.GetDataItem(args.VisibleIndex) as RgfDynamicDictionary;
         if (rowData != null)
         {
-            var attributes = (RgfDynamicDictionary)rowData["__attributes"];
-            if (args.ElementType == GridElementType.DataRow)
+            var attributes = rowData.Get<RgfDynamicDictionary>("__attributes");
+            if (attributes != null)
             {
-                var attr = attributes.GetItemData("class").StringValue;
-                if (attr != null)
+                if (args.ElementType == GridElementType.DataRow)
                 {
-                    args.CssClass = attr;
-                }
-                attr = attributes.GetItemData("style").StringValue;
-                if (attr != null)
-                {
-                    args.Style = attr;
-                }
-            }
-            else if (args.ElementType == GridElementType.DataCell)
-            {
-                var prop = EntityDesc.Properties.SingleOrDefault(e => e.ClientName == args.Column.Name);
-                if (prop?.ColPos > 0)
-                {
-                    var attr = attributes.GetItemData($"class-{prop.Alias}").StringValue;
-                    if (attr != null)
+                    var val = attributes.Get<string>("class");
+                    if (val != null)
                     {
-                        args.CssClass = attr;
+                        args.CssClass = val;
                     }
-                    attr = attributes.GetItemData($"style-{prop.Alias}").StringValue;
-                    if (attr != null)
+                    val = attributes.Get<string>("style");
+                    if (val != null)
                     {
-                        args.Style = attr;
+                        args.Style = val;
+                    }
+                }
+                else if (args.ElementType == GridElementType.DataCell)
+                {
+                    var prop = EntityDesc.Properties.SingleOrDefault(e => e.ClientName == args.Column.Name);
+                    if (prop?.ColPos > 0)
+                    {
+                        var propAttributes = attributes.Get<RgfDynamicDictionary>(prop.Alias);
+                        if (propAttributes != null)
+                        {
+                            var val = propAttributes.Get<string>("class");
+                            if (val != null)
+                            {
+                                args.CssClass = val;
+                            }
+                            val = propAttributes.Get<string>($"style");
+                            if (val != null)
+                            {
+                                args.Style = val;
+                            }
+                        }
                     }
                 }
             }
@@ -187,7 +194,38 @@ public partial class GridComponent : ComponentBase, IDisposable
 
     private void OnCustomSort(GridCustomSortEventArgs args)
     {
-        args.Result = 1;
+        //TODO: Somehow the sorting should be disabled because the server already sends a sorted list.
+        var v1 = (args.DataItem1 as RgfDynamicDictionary)?.GetMember(args.FieldName);
+        var v2 = (args.DataItem2 as RgfDynamicDictionary)?.GetMember(args.FieldName);
+        //_logger.LogDebug("OnCustomSort: {v1},{v2}", v1, v2);
+        //Console.WriteLine($"{args.FieldName}: {v1},{v2}");
+        if (v1 == null && v2 == null)
+        {
+            args.Result = 0;
+        }
+        else if (v1 == null && v2 != null)
+        {
+            args.Result = -1;
+        }
+        else if (v1 != null && v2 == null)
+        {
+            args.Result = 1;
+        }
+        else
+        {
+            try
+            {
+                if (v1!.GetType() == typeof(string))
+                {
+                    args.Result = string.Compare(v1.ToString(), v2!.ToString());
+                }
+                else
+                {
+                    args.Result = v1!.Equals(v2) ? 0 : (dynamic)v1 > (dynamic)v2! ? 1 : -1;
+                }
+            }
+            catch { }
+        }
         args.Handled = true;
     }
 
@@ -259,5 +297,16 @@ public partial class GridComponent : ComponentBase, IDisposable
         args.Grid.SelectRow(args.VisibleIndex);
         var rowData = (RgfDynamicDictionary)args.Grid.GetDataItem(args.VisibleIndex);
         await _rgfGridRef.OnRecordDoubleClickAsync(rowData);
+    }
+
+    private void OnSetFormItem(IRgfEventArgs<RgfToolbarEventArgs> arg)
+    {
+        var data = _rgfGridRef.SelectedItems.Single();
+        int rowIndex = Manager.ListHandler.GetRelativeRowIndex(data);
+        if (rowIndex != -1)
+        {
+            _dxGridRef.ClearSelection();
+            _dxGridRef.SelectRow(rowIndex);
+        }
     }
 }

@@ -7,7 +7,7 @@
                     {
                         <DxToolbarItem BeginGroup="true" Tooltip="@RecroDict.GetRgfUiString("First")" IconCssClass="dx-icon-chevrondoubleleft" Enabled="RgfPager.CurrentPage > 1"
                                        Click="(args) => OnShowFirstPage(args.MouseEventArgs)" />
-                        <DxToolbarItem Tooltip="@RecroDict.GetRgfUiString("Prev")" IconCssClass="dx-icon-chevronprev" Enabled="RgfPager.CurrentPage > 1"
+                        <DxToolbarItem Tooltip="@RecroDict.GetRgfUiString("Prev")" IconCssClass="dx-icon-chevronleft" Enabled="RgfPager.CurrentPage > 1"
                                        Click="(args) => OnShowPreviousPage(args.MouseEventArgs)" />
 
                         <DxToolbarItem>
@@ -65,6 +65,7 @@
     </PagerTemplate>
 </RgfPagerComponent>
 
+@inject IRecroDictService RecroDict
 @code {
 
     [Parameter, EditorRequired]
@@ -72,7 +73,6 @@
 
     private IRgManager Manager => EntityParameters.Manager!;
     private RgfPagerParameters PagerParameters { get => EntityParameters.PagerParameters; }
-    private IRecroDictService RecroDict => Manager.RecroDict;
 
     private RgfPagerComponent _rgfPagerRef { get; set; } = null!;
 

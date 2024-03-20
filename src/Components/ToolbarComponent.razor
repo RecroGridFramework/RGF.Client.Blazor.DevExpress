@@ -12,10 +12,10 @@
                     }
                     @if (Manager.EntityDesc.Options.GetBoolValue("RGO_ClientMode") != true)
                     {
-                        <DxToolbarItem BeginGroup="true" IconCssClass="dx-icon-refresh" Tooltip="@RecroDict.GetRgfUiString("Refresh")" Click="(arg) => RgfToolbar.OnToolbarCommand(ToolbarAction.Refresh)" />
+                        <DxToolbarItem BeginGroup="true" IconCssClass="dx-icon-refresh" Tooltip="@RecroDict.GetRgfUiString("Refresh")" Click="(arg) => RgfToolbar.OnToolbarCommand(RgfToolbarEventKind.Refresh)" />
                         @if (Manager.EntityDesc.Options.GetBoolValue("RGO_NoFilter") != true)
                         {
-                            <DxToolbarItem IconCssClass="dx-icon-filter" Tooltip="@RecroDict.GetRgfUiString("Filter")" Click="(arg) => RgfToolbar.OnToolbarCommand(ToolbarAction.ShowFilter)"
+                            <DxToolbarItem IconCssClass="dx-icon-filter" Tooltip="@RecroDict.GetRgfUiString("Filter")" Click="(arg) => RgfToolbar.OnToolbarCommand(RgfToolbarEventKind.ShowFilter)"
                                            RenderStyle="@(RgfToolbar.IsFiltered ? ButtonRenderStyle.Info : ButtonRenderStyle.Secondary)" />
                         }
                     }
@@ -24,17 +24,17 @@
                         @if (RgfToolbar.BasePermissions.Add)
                         {
                             <DxToolbarItem BeginGroup="true" Tooltip="@RecroDict.GetRgfUiString("New")" IconCssClass="dx-icon-plus"
-                                           Click="() => RgfToolbar.OnToolbarCommand(ToolbarAction.Add)" />
+                                           Click="() => RgfToolbar.OnToolbarCommand(RgfToolbarEventKind.Add)" />
                         }
                         @if (RgfToolbar.BasePermissions.Edit)
                         {
                             <DxToolbarItem Tooltip="@RecroDict.GetRgfUiString("Modify")" IconCssClass="dx-icon-edit" Enabled="@RgfToolbar.IsSingleSelectedRow"
-                                           Click="() => RgfToolbar.OnToolbarCommand(ToolbarAction.Edit)" />
+                                           Click="() => RgfToolbar.OnToolbarCommand(RgfToolbarEventKind.Edit)" />
                         }
                         else if (RgfToolbar.BasePermissions.Read)
                         {
                             <DxToolbarItem Tooltip="@RecroDict.GetRgfUiString("Details")" IconCssClass="dx-icon-description" Enabled="@RgfToolbar.IsSingleSelectedRow"
-                                           Click="() => RgfToolbar.OnToolbarCommand(ToolbarAction.Read)" />
+                                           Click="() => RgfToolbar.OnToolbarCommand(RgfToolbarEventKind.Read)" />
                         }
                         @if (RgfToolbar.BasePermissions.Delete)
                         {
@@ -52,7 +52,7 @@
                     {
                         <DxToolbarItem BeginGroup="true" Tooltip="@RecroDict.GetRgfUiString("Select")" IconCssClass="dx-icon-link" Enabled="@RgfToolbar.IsSingleSelectedRow"
                                        RenderStyle="@(RgfToolbar.IsSingleSelectedRow ? ButtonRenderStyle.Success : ButtonRenderStyle.Secondary)"
-                                       Click="() => RgfToolbar.OnToolbarCommand(ToolbarAction.Select)" />
+                                       Click="() => RgfToolbar.OnToolbarCommand(RgfToolbarEventKind.Select)" />
                     }
                 </Items>
             </DxToolbar>
@@ -66,6 +66,7 @@
     }
 </style>
 
+@inject IRecroDictService RecroDict
 @code {
 
     [Parameter, EditorRequired]
@@ -73,7 +74,6 @@
 
     private IRgManager Manager => EntityParameters.Manager!;
     private RgfToolbarParameters ToolbarParameters { get => EntityParameters.ToolbarParameters; }
-    private IRecroDictService RecroDict => Manager.RecroDict;
 
     private RgfToolbarComponent _rgfToolbarRef { get; set; } = null!;
 }
