@@ -21,7 +21,7 @@
   <PropertyGroup>
     <Authors>$(Company)</Authors>
     <PackageOutputPath>..\..\dist</PackageOutputPath>
-    <PackageProjectUrl>https://recrogrid.com/</PackageProjectUrl>
+    <PackageProjectUrl>https://recrogridframework.com/</PackageProjectUrl>
     <Description>RecroGrid Framework Blazor UI.</Description>
     <PackageTags>RecroGrid Framework Blazor UI DevExpress</PackageTags>
     <RepositoryUrl>https://github.com/RecroGridFramework/RGF.Client.Blazor.DevExpress.git</RepositoryUrl>
@@ -42,7 +42,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)'=='Release'">
-    <PackageReference Include="Recrovit.RecroGridFramework.Client.Blazor" Version="8.5.0" />
+    <PackageReference Include="Recrovit.RecroGridFramework.Client.Blazor" Version="8.5.3" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)'=='Debug'">
