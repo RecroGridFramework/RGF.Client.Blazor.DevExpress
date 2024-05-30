@@ -2,7 +2,9 @@
 <RgfFormItemComponent FormItemParameters="FormItemParameters" ShowValidationMessage="false">
     <ItemTemplate Context="RgfFormItem">
 
-        <DxFormLayoutItem Caption="@Label" ColSpanSm="FormItemParameters.Property.FlexColumnWidth ?? FormItemParameters.Group.FlexColumnWidth">
+        <DxFormLayoutItem @ref="_dxLayout" Caption="@Label" ColSpanSm="FormItemParameters.Property.FlexColumnWidth ?? FormItemParameters.Group.FlexColumnWidth"
+                          CssClass="@($"{(FormItemParameters.Property.EmbededGrid ? "rg-collection" : "rg-property")}")">
+            @* @attributes="@(new Dictionary<string, object>() { { "name", FormItemParameters.Property.ClientName } })" *@
 
             @switch (PropertyDesc.FormType)
             {
@@ -67,7 +69,7 @@
                             <DxCheckBox @bind-Checked="ItemData.BooleanValue"
                                         ReadOnly="Property.Readonly" Enabled="!Property.Disabled"
                                         CssClass="@RgfFormItem.CssClass">@Property.Label</DxCheckBox>
-                            </div>
+                        </div>
                     }
                     else
                     {
@@ -149,6 +151,7 @@
     </ItemTemplate>
 </RgfFormItemComponent>
 
+@inject IJSRuntime _jsRuntime
 @code {
 
     [Parameter, EditorRequired]
@@ -164,7 +167,14 @@
 
     protected RgfProperty PropertyDesc => Property.PropertyDesc;
     private RenderFragment? _embeddedGrid;
+    private DxFormLayoutItem _dxLayout { get; set; } = null!;
 
     protected string Id { get; set; } = DynamicComponentWrapper.GetNextId();
     protected string? Label => !Property.EmbededGrid && !Property.NoLabel && (PropertyDesc.FormType != PropertyFormType.CheckBox || Property.AvailableItems?.Any() == true) ? Property.Label : null;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        await _jsRuntime.InvokeVoidAsync("eval", $"document.getElementById('{_dxLayout.Id}').setAttribute('name', '{Property.ClientName}')");
+    }
 }
