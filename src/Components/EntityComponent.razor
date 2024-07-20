@@ -4,7 +4,8 @@
                     GridTemplate="GridTemplate"
                     FilterTemplate="FilterTemplate"
                     PagerTemplate="PagerTemplate"
-                    FormTemplate="FormTemplate">
+                    FormTemplate="FormTemplate"
+                    ChartTemplate="ChartTemplate!">
     <LoadingIndicator>
         <DxLoadingPanel Visible="true" IsContentBlocked="false" Text="Loading..." />
     </LoadingIndicator>
@@ -29,4 +30,7 @@
 
     [Parameter]
     public RenderFragment<RgfEntityParameters> FormTemplate { get; set; } = (context) => @<FormComponent EntityParameters="context" />;
+
+    [Parameter]
+    public RenderFragment<RgfEntityParameters>? ChartTemplate { get; set; }
 }
