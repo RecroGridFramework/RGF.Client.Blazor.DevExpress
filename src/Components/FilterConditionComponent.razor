@@ -26,11 +26,11 @@
                 {
                     <div class="p-1">
                         <DxComboBox TValue="int" TData="KeyValuePair<int, string>" TextFieldName="Value" ValueFieldName="Key"
-                                    Data="Columns" Value="item.PropertyId" ValueChanged="(value) => OnChangeProperty(value, item)" />
+                                    Data="Columns" Value="item.PropertyId" ValueExpression="() => item.PropertyId" ValueChanged="(value) => OnChangeProperty(value, item)" />
                     </div>
                     <div class="p-1">
                         <DxComboBox TValue="RgfFilter.QueryOperator" TData="KeyValuePair<RgfFilter.QueryOperator, string>" TextFieldName="Value" ValueFieldName="Key"
-                                    Data="GetQueryOperators(item)" Value="item.QueryOperator" ValueChanged="(value) => OnChangeQueryOperator(value, item)" />
+                                    Data="GetQueryOperators(item)" Value="item.QueryOperator" ValueExpression="() => item.QueryOperator" ValueChanged="(value) => OnChangeQueryOperator(value, item)" />
                     </div>
                     @if (!(new[] { RgfFilter.QueryOperator.IsNull, RgfFilter.QueryOperator.IsNotNull, RgfFilter.QueryOperator.Exists }.Contains(item.QueryOperator)))
                     {
@@ -39,23 +39,23 @@
                             @switch (prop.ClientDataType)
                             {
                                 case ClientDataType.Integer:
-                                    <DxSpinEdit T="int?" @bind-Value="item.IntValue1" />
+                                    <DxSpinEdit T="int?" @bind-Value="item.DynValue1.IntValue" />
                                     break;
 
                                 case ClientDataType.Decimal:
-                                    <DxSpinEdit T="decimal?" @bind-Value="item.DecimalValue1" ShowSpinButtons="false" />
+                                    <DxSpinEdit T="decimal?" @bind-Value="item.DynValue1.DecimalValue" ShowSpinButtons="false" />
                                     break;
 
                                 case ClientDataType.Double:
-                                    <DxSpinEdit T="double?" @bind-Value="item.DoubleValue1" ShowSpinButtons="false" />
+                                    <DxSpinEdit T="double?" @bind-Value="item.DynValue1.DoubleValue" ShowSpinButtons="false" />
                                     break;
 
                                 case ClientDataType.DateTime:
-                                    <DxDateEdit T="DateTime?" @bind-Date="item.DateTimeValue1" Mask="@(prop.FormType == PropertyFormType.Date ? DateTimeMask.ShortDate : DateTimeMask.ShortDateTime)" />
+                                    <DxDateEdit T="DateTime?" @bind-Date="item.DynValue1.DateTimeValue" Mask="@(prop.FormType == PropertyFormType.Date ? DateTimeMask.ShortDate : DateTimeMask.ShortDateTime)" />
                                     break;
 
                                 case ClientDataType.Boolean:
-                                    <DxCheckBox @bind-Checked="item.BooleanValue1" />
+                                    <DxCheckBox @bind-Checked="item.DynValue1.BooleanValue" />
                                     break;
 
                                 default:
@@ -63,11 +63,11 @@
                                     {
                                         <DxListBox TValue="string" TData="KeyValuePair<string, string>" TextFieldName="Value" ValueFieldName="Key" CssClass="listbox-multi"
                                                    Data="prop.Dictionary" SelectionMode="ListBoxSelectionMode.Multiple" ShowCheckboxes="true"
-                                                   Values="item.StringArray1.ToList()" ValuesChanged="(value) => item.StringArray1 = value.ToArray()" />
+                                                   Values="item.DynValue1.StringArray" ValuesExpression="() => item.DynValue1.StringArray" ValuesChanged="(values) => item.DynValue1.StringArray = values.ToArray()" />
                                     }
                                     else
                                     {
-                                        <DxTextBox @bind-Text="item.StringValue1" />
+                                        <DxTextBox @bind-Text="item.DynValue1.StringValue" />
                                     }
                                     break;
                             }
@@ -79,23 +79,23 @@
                                 @switch (prop.ClientDataType)
                                 {
                                     case ClientDataType.Integer:
-                                        <DxSpinEdit T="int?" @bind-Value="item.IntValue2" />
+                                        <DxSpinEdit T="int?" @bind-Value="item.DynValue2.IntValue" />
                                         break;
 
                                     case ClientDataType.Decimal:
-                                        <DxSpinEdit T="decimal?" @bind-Value="item.DecimalValue2" ShowSpinButtons="false" />
+                                        <DxSpinEdit T="decimal?" @bind-Value="item.DynValue2.DecimalValue" ShowSpinButtons="false" />
                                         break;
 
                                     case ClientDataType.Double:
-                                        <DxSpinEdit T="double?" @bind-Value="item.DoubleValue2" ShowSpinButtons="false" />
+                                        <DxSpinEdit T="double?" @bind-Value="item.DynValue2.DoubleValue" ShowSpinButtons="false" />
                                         break;
 
                                     case ClientDataType.DateTime:
-                                        <DxDateEdit T="DateTime?" @bind-Date="item.DateTimeValue2" Mask="@(prop.FormType == PropertyFormType.Date ? DateTimeMask.ShortDate : DateTimeMask.ShortDateTime)" />
+                                        <DxDateEdit T="DateTime?" @bind-Date="item.DynValue2.DateTimeValue" Mask="@(prop.FormType == PropertyFormType.Date ? DateTimeMask.ShortDate : DateTimeMask.ShortDateTime)" />
                                         break;
 
                                     default:
-                                        <DxTextBox @bind-Text="item.StringValue2" />
+                                        <DxTextBox @bind-Text="item.DynValue2.StringValue" />
                                         break;
                                 }
                             </div>
