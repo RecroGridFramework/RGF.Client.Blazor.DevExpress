@@ -70,6 +70,6 @@
     private void OnTextChanged(string value)
     {
         var filter = _rgfFilterRef.FilterHandler.PredefinedFilters.FirstOrDefault(e => e.Name == value);
-        _rgfFilterRef.OnSetPredefinedFilter(filter?.Key ?? value);
+        _rgfFilterRef.OnSetPredefinedFilter(filter?.Key, value);
     }
 }
