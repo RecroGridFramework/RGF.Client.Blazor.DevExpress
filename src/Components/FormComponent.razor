@@ -44,6 +44,7 @@
 
 @inject IJSRuntime _jsRuntime
 @inject IRecroDictService RecroDict
+@implements IDisposable
 @code {
 
     [Parameter, EditorRequired]
@@ -61,11 +62,11 @@
         base.OnInitialized();
         FormParameters.ErrorCssClass = FormParameters.ErrorCssClass ?? "is-invalid";
         FormParameters.ModifiedCssClass = FormParameters.ModifiedCssClass ?? "is-valid";
+        EntityParameters.FormParameters.EventDispatcher.Subscribe(RgfFormEventKind.ParametersSet, OnParametersSet);
     }
 
-    protected override void OnParametersSet()
+    private void OnParametersSet(IRgfEventArgs<RgfFormEventArgs> args)
     {
-        base.OnParametersSet();
         var rowIndex = FormParameters.FormViewKey.RowIndex;
         if (rowIndex != -1)
         {
@@ -97,5 +98,10 @@
     {
         ActiveTabIndex = index;
         PreviouslyActiveTabs.Add(index);
+    }
+ 
+    public void Dispose()
+    {
+        EntityParameters.FormParameters.EventDispatcher.Unsubscribe(RgfFormEventKind.ParametersSet, OnParametersSet);
     }
 }
