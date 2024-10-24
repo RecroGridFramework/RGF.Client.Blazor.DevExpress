@@ -42,6 +42,11 @@
                                            Click="() => RgfToolbar.OnDelete()" />
                         }
                     }
+                    @if (RgfToolbar.EnableChart)
+                    {
+                        <DxToolbarItem BeginGroup="true" Tooltip="RecroChart" IconCssClass="dx-icon-chart"
+                                       Click="() => RgfToolbar.OnToolbarCommand(RgfToolbarEventKind.RecroChart)" />
+                    }
                     @if (RgfToolbar.SettingsMenu != null)
                     {
                         <DxToolbarItem BeginGroup="true" Tooltip="@RecroDict.GetRgfUiString("Setup")" CssClass="toolbar-menu">

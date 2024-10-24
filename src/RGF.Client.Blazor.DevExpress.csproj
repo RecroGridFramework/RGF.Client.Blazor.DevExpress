@@ -42,11 +42,12 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)'=='Release'">
+    <PackageReference Include="Recrovit.RecroGridFramework.Blazor.RgfApexCharts" Version="8.1.0" />
     <PackageReference Include="Recrovit.RecroGridFramework.Client.Blazor" Version="8.10.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)'=='Debug'">
-    <ProjectReference Include="..\..\RGF.Client.Blazor\src\RGF.Client.Blazor.csproj" />
+    <ProjectReference Include="..\..\RGF.Blazor.RgfApexCharts\src\RGF.Blazor.RgfApexCharts.csproj" />
   </ItemGroup>
 
   <ItemGroup>
