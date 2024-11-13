@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
+using Recrovit.RecroGridFramework.Blazor.RgfApexCharts;
 using Recrovit.RecroGridFramework.Client.Blazor.DevExpressUI.Components;
 using System.Reflection;
 
@@ -7,7 +8,7 @@ namespace Recrovit.RecroGridFramework.Client.Blazor.DevExpressUI;
 
 public static class RGFClientBlazorDevExpressConfiguration
 {
-    public static async Task InitializeRgfDevExpressUIAsync(this IServiceProvider serviceProvider, string themeName = "blazing-berry.bs5", bool loadResources = true)
+    public static async Task InitializeRgfDevExpressUIAsync(this IServiceProvider serviceProvider, string themeName = "blazing-berry.bs5", bool loadResources = true, bool shouldLoadBundledStyles = true)
     {
         RgfBlazorConfiguration.RegisterComponent<MenuComponent>(RgfBlazorConfiguration.ComponentType.Menu);
         RgfBlazorConfiguration.RegisterComponent<DialogComponent>(RgfBlazorConfiguration.ComponentType.Dialog);
@@ -16,14 +17,15 @@ public static class RGFClientBlazorDevExpressConfiguration
         if (loadResources)
         {
             var jsRuntime = serviceProvider.GetRequiredService<IJSRuntime>();
-            await LoadResourcesAsync(jsRuntime, themeName);
+            await LoadResourcesAsync(jsRuntime, themeName, shouldLoadBundledStyles);
         }
+
+        await serviceProvider.InitializeRGFBlazorApexChartsAsync(loadResources, shouldLoadBundledStyles);
     }
 
-    public static async Task LoadResourcesAsync(IJSRuntime jsRuntime, string themeName)
+    public static async Task LoadResourcesAsync(IJSRuntime jsRuntime, string themeName, bool shouldLoadBundledStyles = true)
     {
         var libName = Assembly.GetExecutingAssembly().GetName().Name;
-
         await jsRuntime.InvokeVoidAsync("Recrovit.LPUtils.AddStyleSheetLink", $"{RgfClientConfiguration.AppRootPath}_content/DevExpress.Blazor.Themes/{themeName}.min.css", false, "devexpress-theme", $"{Assembly.GetEntryAssembly()?.GetName().Name}.styles.css");
         await jsRuntime.InvokeVoidAsync("Recrovit.LPUtils.AddStyleSheetLink", DevExtreme, true, "devextreme", "DevExpress.Blazor.Themes");
         await jsRuntime.InvokeVoidAsync("import", $"{RgfClientConfiguration.AppRootPath}_content/{libName}/scripts/recrovit-rgf-blazor-devexpress.js");
@@ -33,6 +35,8 @@ public static class RGFClientBlazorDevExpressConfiguration
     {
         await jsRuntime.InvokeVoidAsync("eval", "document.getElementById('devexpress-theme')?.remove();");
         await jsRuntime.InvokeVoidAsync("eval", "document.getElementById('devextreme')?.remove();");
+
+        await RgfApexChartsConfiguration.UnloadResourcesAsync(jsRuntime);
     }
 
     public static readonly string JsBlazorDevExpressNamespace = "Recrovit.RGF.Blazor.DevExpress";

@@ -27,7 +27,7 @@ else if (_menuItems != null)
                     <Items>
                         @if (item.NestedMenu.Any())
                         {
-                            <MenuComponent Submenu="true" MenuParameters="@(new RgfMenuParameters() { MenuItems = item.NestedMenu, MenuRenderCallback = MenuParameters.MenuRenderCallback, MenuSelectionCallback = MenuParameters.MenuSelectionCallback})" />
+                            <MenuComponent Submenu="true" MenuParameters="@(new RgfMenuParameters() { MenuItems = item.NestedMenu, OnMenuRender = MenuParameters.OnMenuRender, OnMenuItemSelect = MenuParameters.OnMenuItemSelect})" />
                         }
                     </Items>
                 </DxMenuItem>
@@ -43,7 +43,7 @@ else if (_menuItems != null)
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.All"
                 SubMenuCssClass="menu-dropdown">
             <Items>
-                <MenuComponent Submenu="true" MenuParameters="@(new RgfMenuParameters() { MenuItems = _menuItems, MenuRenderCallback = MenuParameters.MenuRenderCallback, MenuSelectionCallback = MenuParameters.MenuSelectionCallback})" />
+                <MenuComponent Submenu="true" MenuParameters="@(new RgfMenuParameters() { MenuItems = _menuItems, OnMenuRender = MenuParameters.OnMenuRender, OnMenuItemSelect = MenuParameters.OnMenuItemSelect})" />
             </Items>
         </DxMenu>
     }
@@ -106,9 +106,9 @@ else if (_menuItems != null)
     {
         foreach (var item in menuItems)
         {
-            if (MenuParameters.MenuRenderCallback != null)
+            if (MenuParameters.OnMenuRender != null)
             {
-                await MenuParameters.MenuRenderCallback.Invoke(item);
+                await MenuParameters.OnMenuRender.Invoke(item);
             }
             if (item.NestedMenu?.Any() == true)
             {
@@ -119,9 +119,9 @@ else if (_menuItems != null)
 
     public async Task ItemSelectedAsync(RgfMenu arg)
     {
-        if ((arg.MenuType != RgfMenuType.Function || arg.MenuType != RgfMenuType.FunctionForRec) && MenuParameters.MenuSelectionCallback != null)
+        if ((arg.MenuType != RgfMenuType.Function || arg.MenuType != RgfMenuType.FunctionForRec) && MenuParameters.OnMenuItemSelect != null)
         {
-            await MenuParameters.MenuSelectionCallback.Invoke(arg);
+            await MenuParameters.OnMenuItemSelect.Invoke(arg);
         }
     }
 }
