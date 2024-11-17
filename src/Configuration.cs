@@ -8,7 +8,7 @@ namespace Recrovit.RecroGridFramework.Client.Blazor.DevExpressUI;
 
 public static class RGFClientBlazorDevExpressConfiguration
 {
-    public static async Task InitializeRgfDevExpressUIAsync(this IServiceProvider serviceProvider, string themeName = "blazing-berry.bs5", bool loadResources = true, bool shouldLoadBundledStyles = true)
+    public static async Task InitializeRgfDevExpressUIAsync(this IServiceProvider serviceProvider, string themeName = "blazing-berry.bs5", bool loadResources = true)
     {
         RgfBlazorConfiguration.RegisterComponent<MenuComponent>(RgfBlazorConfiguration.ComponentType.Menu);
         RgfBlazorConfiguration.RegisterComponent<DialogComponent>(RgfBlazorConfiguration.ComponentType.Dialog);
@@ -17,13 +17,13 @@ public static class RGFClientBlazorDevExpressConfiguration
         if (loadResources)
         {
             var jsRuntime = serviceProvider.GetRequiredService<IJSRuntime>();
-            await LoadResourcesAsync(jsRuntime, themeName, shouldLoadBundledStyles);
+            await LoadResourcesAsync(jsRuntime, themeName);
         }
 
-        await serviceProvider.InitializeRGFBlazorApexChartsAsync(loadResources, shouldLoadBundledStyles);
+        await serviceProvider.InitializeRGFBlazorApexChartsAsync(loadResources);
     }
 
-    public static async Task LoadResourcesAsync(IJSRuntime jsRuntime, string themeName, bool shouldLoadBundledStyles = true)
+    public static async Task LoadResourcesAsync(IJSRuntime jsRuntime, string themeName)
     {
         var libName = Assembly.GetExecutingAssembly().GetName().Name;
         await jsRuntime.InvokeVoidAsync("Recrovit.LPUtils.AddStyleSheetLink", $"{RgfClientConfiguration.AppRootPath}_content/DevExpress.Blazor.Themes/{themeName}.min.css", false, "devexpress-theme", $"{Assembly.GetEntryAssembly()?.GetName().Name}.styles.css");
