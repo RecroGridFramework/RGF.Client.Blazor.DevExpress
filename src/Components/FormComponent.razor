@@ -84,7 +84,7 @@
     }
 
     public RenderFragment<RgfFormGroupLayoutParameters> FormGroupLayoutTemplate => (param) =>
-    @<DxFormLayoutGroup Caption="" Decoration="FormLayoutGroupDecoration.None" BeginRow="true" CssClass="mt-3">
+    @<DxFormLayoutGroup Caption="" Decoration="FormLayoutGroupDecoration.None" BeginRow="true" CssClass="rg-group mt-3">
         @foreach (var prop in param.FormGroup.Properties)
     {
         @param.BaseFormComponent.GetFormItemLayoutTemplate(new RgfFormItemParameters(_rgfFormRef, param.FormGroup, prop))
