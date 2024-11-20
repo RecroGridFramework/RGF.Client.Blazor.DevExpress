@@ -2,7 +2,7 @@
 <RgfFormItemComponent FormItemParameters="FormItemParameters" ShowValidationMessage="false">
     <ItemTemplate Context="RgfFormItem">
 
-        <DxFormLayoutItem @ref="_dxLayout" Caption="@Label" ColSpanSm="FormItemParameters.Property.FlexColumnWidth ?? FormItemParameters.Group.FlexColumnWidth"
+        <DxFormLayoutItem @ref="_dxLayout" Caption="@Label" ColSpanSm="GetColSpan(FormItemParameters)"
                           CssClass="@($"{(FormItemParameters.Property.EmbededGrid ? "rg-collection" : "rg-property")}")">
             @* @attributes="@(new Dictionary<string, object>() { { "name", FormItemParameters.Property.ClientName } })" *@
 
@@ -176,5 +176,11 @@
     {
         await base.OnAfterRenderAsync(firstRender);
         await _jsRuntime.InvokeVoidAsync("eval", $"document.getElementById('{_dxLayout.Id}').setAttribute('name', '{Property.ClientName}')");
+    }
+
+    private int GetColSpan(RgfFormItemParameters param)
+    {
+        var width = param.Property.FlexColumnWidth ?? param.Group.FlexColumnWidth;
+        return width > 0 ? width : 0;
     }
 }
