@@ -31,11 +31,10 @@ public partial class GridComponent : ComponentBase, IDisposable
 
     private RgfEntity EntityDesc => Manager.EntityDesc;
 
-    public IRgListHandler ListHandler => Manager.ListHandler;
-
     protected override void OnInitialized()
     {
         base.OnInitialized();
+        GridParameters.EnableMultiRowSelection = false;
         GridParameters.EventDispatcher.Subscribe(RgfListEventKind.CreateRowData, OnCreateAttributes);
         _initialized = true;
     }
@@ -71,7 +70,7 @@ public partial class GridComponent : ComponentBase, IDisposable
                 _initialized = true;
                 if (_sort.Any())
                 {
-                    ListHandler.SetSortAsync(_sort);
+                    Manager.ListHandler.SetSortAsync(_sort);
                     _sort.Clear();
                 }
                 StateHasChanged();
@@ -95,7 +94,7 @@ public partial class GridComponent : ComponentBase, IDisposable
     {
         if (property.ColPos != newIdx + 1)
         {
-            await ListHandler.MoveColumnAsync(property.ColPos, newIdx + 1, false);
+            await Manager.ListHandler.MoveColumnAsync(property.ColPos, newIdx + 1, false);
             Recreate();
         }
     }
@@ -104,7 +103,7 @@ public partial class GridComponent : ComponentBase, IDisposable
     {
         if (_initialized)
         {
-            ListHandler.ReplaceColumnWidth(property.Alias, Convert.ToInt32(width.Replace("px", "")));
+            Manager.ListHandler.ReplaceColumnWidth(property.Alias, Convert.ToInt32(width.Replace("px", "")));
             Recreate();
         }
     }
@@ -272,7 +271,7 @@ public partial class GridComponent : ComponentBase, IDisposable
                 dict.Add(property.Alias, args.CtrlKey ? -1 : 1);
             }
         }
-        await ListHandler.SetSortAsync(dict);
+        await Manager.ListHandler.SetSortAsync(dict);
     }
 
     protected virtual async Task OnRowClick(GridRowClickEventArgs args)
@@ -281,7 +280,8 @@ public partial class GridComponent : ComponentBase, IDisposable
         args.Grid.ClearSelection();
         if (_rgfGridRef.SelectedItems.Any())
         {
-            bool deselect = _rgfGridRef.SelectedItems[0] == rowData;
+            int idx = Manager.ListHandler.GetAbsoluteRowIndex(rowData);
+            bool deselect = _rgfGridRef.SelectedItems.ContainsKey(idx);
             await _rgfGridRef.RowDeselectHandlerAsync(rowData);
             if (deselect)
             {
@@ -303,7 +303,7 @@ public partial class GridComponent : ComponentBase, IDisposable
     private void OnSetFormItem(IRgfEventArgs<RgfToolbarEventArgs> arg)
     {
         var data = _rgfGridRef.SelectedItems.Single();
-        int rowIndex = Manager.ListHandler.GetRelativeRowIndex(data);
+        int rowIndex = Manager.ListHandler.ToRelativeRowIndex(data.Key);
         if (rowIndex != -1)
         {
             _dxGridRef.ClearSelection();
