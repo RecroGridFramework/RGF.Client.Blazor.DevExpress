@@ -1,37 +1,37 @@
-﻿
-<RgfFilterComponent @ref="_rgfFilterRef" EntityParameters="EntityParameters">
+﻿<RgfFilterComponent @ref="_rgfFilterRef" EntityParameters="EntityParameters">
     <FilterTemplate Context="RgfFilterComp">
         <FilterConditionComponent FilterComponent="RgfFilterComp" Condition="RgfFilterComp.Condition" />
     </FilterTemplate>
     <FooterTemplate Context="RgfFilterComp">
         <div class="d-flex flex-row justify-content-start align-items-center">
             <div class="p-1">
-                <label class="col-form-label">Query timeout</label>
+                <label class="col-form-label">@RecroDict.GetRgfUiString("SQLTimeout"):</label>
             </div>
             <div class="p-1">
-                <DxSpinEdit T="int?" @bind-Value="RgfFilterComp.PredefinedFilter.QueryTimeout" ShowSpinButtons="false" MinValue="0" style="width:3rem" />
+                <DxSpinEdit T="int?" @bind-Value="RgfFilterComp.FilterSettings.SQLTimeout" ShowSpinButtons="false" MinValue="0" style="width:3rem" />
             </div>
 
             <div class="p-1">
-                <DxComboBox TValue="string" TData="string" @bind-Value="RgfFilterComp.PredefinedFilterName" AllowUserInput="true"
-                            Data="RgfFilterComp.FilterHandler.PredefinedFilters.Select(e=> e.Name)"
+                <DxComboBox TValue="string" TData="string" @bind-Value="RgfFilterComp.FilterSettings.SettingsName" AllowUserInput="true"
+                            Data="RgfFilterComp.FilterHandler.PredefinedFilters.Select(e=> e.SettingsName)"
                             TextChanged="OnTextChanged" />
             </div>
             <div class="p-1">
-                <DxCheckBox LabelPosition="LabelPosition.Left" @bind-Checked="RgfFilterComp.PredefinedFilter.IsGlobal" Enabled="RgfFilterComp.IsPredefinedFilterAdmin">
-                    @RecroDict.GetRgfUiString("Public")
-                </DxCheckBox>
+                <DxComboBox TValue="string" TData="KeyValuePair<string, string>" TextFieldName="Value" ValueFieldName="Key"
+                            Data="RgfFilterComp.VisibleRoles" @bind-Value="RgfFilterComp.FilterSettings.RoleId"
+                            title="@RecroDict.GetRgfUiString("RoleVisibilitySettingTooltip")"
+                            Enabled="!(RgfFilterComp.FilterSettings.IsReadonly == true || !RgfFilterComp.IsPublicFilterSettingAllowed || string.IsNullOrEmpty(RgfFilterComp.FilterSettings.SettingsName))" />
             </div>
             <div class="p-1">
-                <DxButton IconCssClass="dx-icon-save" title="@RecroDict.GetRgfUiString("Save")"
+                <DxButton IconCssClass="dx-icon-save" title="@RecroDict.GetRgfUiString("SaveFilterSettings")"
                           RenderStyleMode="@ButtonRenderStyleMode.Outline"
-                          Enabled="!string.IsNullOrEmpty(RgfFilterComp.PredefinedFilter.Name) && (RgfFilterComp.IsPredefinedFilterAdmin || !RgfFilterComp.PredefinedFilter.IsGlobal)"
+                          Enabled="!(RgfFilterComp.FilterSettings.IsReadonly == true || string.IsNullOrEmpty(RgfFilterComp.FilterSettings.SettingsName) || !RgfFilterComp.IsPublicFilterSettingAllowed && RgfFilterComp.FilterSettings.RoleId != null)"
                           Click="() => RgfFilterComp.OnSavePredefinedFilter()" />
             </div>
             <div class="pt-1 pb-1">
-                <DxButton IconCssClass="dx-icon-trash" title="@RecroDict.GetRgfUiString("Delete")"
+                <DxButton IconCssClass="dx-icon-trash" title="@RecroDict.GetRgfUiString("DeleteSavedSettings")"
                           RenderStyleMode="@ButtonRenderStyleMode.Outline"
-                          Enabled="!string.IsNullOrEmpty(RgfFilterComp.PredefinedFilter.Key) && (RgfFilterComp.IsPredefinedFilterAdmin || !RgfFilterComp.PredefinedFilter.IsGlobal)"
+                          Enabled="!(RgfFilterComp.FilterSettings.IsReadonly == true || RgfFilterComp.FilterSettings.FilterSettingsId == null || !RgfFilterComp.IsPublicFilterSettingAllowed && RgfFilterComp.FilterSettings.RoleId != null)"
                           Click="(arg) => RgfFilterComp.OnDeletePredefinedFilter()" />
             </div>
         </div>
@@ -69,7 +69,7 @@
 
     private void OnTextChanged(string value)
     {
-        var filter = _rgfFilterRef.FilterHandler.PredefinedFilters.FirstOrDefault(e => e.Name == value);
-        _rgfFilterRef.OnSetPredefinedFilter(filter?.Key, value);
+        var filter = _rgfFilterRef.FilterHandler.PredefinedFilters.FirstOrDefault(e => e.SettingsName == value);
+        _rgfFilterRef.OnSetPredefinedFilter(filter?.FilterSettingsId, value);
     }
 }
