@@ -20,7 +20,7 @@
                                           UnboundType="GridUnboundColumnType.Object"
                                           Width="@(prop.ColWidth > 0 ? $"{prop.ColWidth}px" : null)">
                             <CellDisplayTemplate>
-                                @RgfGrid.CreateGridColumn(prop, (RgfDynamicDictionary)context.DataItem)
+                                @RgfGrid.RenderContentItem(prop, (RgfDynamicDictionary)context.DataItem)
                             </CellDisplayTemplate>
                         </DxGridDataColumn>
                     }
@@ -30,7 +30,7 @@
     </GridTemplate>
 
     <ColumnSettingsTemplate>
-        <GridColumnSettingsComponent BaseGridComponent="context" />
+        <GridColumnSettingsComponent BaseDataComponent="context" />
     </ColumnSettingsTemplate>
 </RgfGridComponent>
 
