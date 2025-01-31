@@ -26,9 +26,9 @@ public static class RGFClientBlazorDevExpressConfiguration
     public static async Task LoadResourcesAsync(IJSRuntime jsRuntime, string themeName)
     {
         var libName = Assembly.GetExecutingAssembly().GetName().Name;
-        await jsRuntime.InvokeVoidAsync("Recrovit.LPUtils.AddStyleSheetLink", $"{RgfClientConfiguration.AppRootPath}_content/DevExpress.Blazor.Themes/{themeName}.min.css", false, "devexpress-theme", $"{Assembly.GetEntryAssembly()?.GetName().Name}.styles.css");
+        await jsRuntime.InvokeVoidAsync("Recrovit.LPUtils.AddStyleSheetLink", $"{RgfClientConfiguration.AppRootPath}/_content/DevExpress.Blazor.Themes/{themeName}.min.css", false, "devexpress-theme", $"{Assembly.GetEntryAssembly()?.GetName().Name}.styles.css");
         await jsRuntime.InvokeVoidAsync("Recrovit.LPUtils.AddStyleSheetLink", DevExtreme, true, "devextreme", "DevExpress.Blazor.Themes");
-        await jsRuntime.InvokeVoidAsync("import", $"{RgfClientConfiguration.AppRootPath}_content/{libName}/scripts/recrovit-rgf-blazor-devexpress.js");
+        await jsRuntime.InvokeVoidAsync("import", $"{RgfClientConfiguration.AppRootPath}/_content/{libName}/scripts/recrovit-rgf-blazor-devexpress.js");
     }
 
     public static async Task UnloadResourcesAsync(IJSRuntime jsRuntime)

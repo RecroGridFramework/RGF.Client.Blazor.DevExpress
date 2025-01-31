@@ -169,7 +169,7 @@
     private RenderFragment? _embeddedGrid;
     private DxFormLayoutItem _dxLayout { get; set; } = null!;
 
-    protected string Id { get; set; } = DynamicComponentWrapper.GetNextId();
+    protected string Id { get; set; } = RgfComponentWrapper.GetNextId();
     protected string? Label => !Property.EmbededGrid && !Property.NoLabel && (PropertyDesc.FormType != PropertyFormType.CheckBox || Property.AvailableItems?.Any() == true) ? Property.Label : null;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
