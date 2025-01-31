@@ -14,7 +14,7 @@
         if (firstRender)
         {
             var libName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
-            _module = await _jsRuntime.InvokeAsync<IJSObjectReference>("import", $"{RgfClientConfiguration.AppRootPath}_content/{libName}/scripts/devexpress-theme.js");
+            _module = await _jsRuntime.InvokeAsync<IJSObjectReference>("import", $"{RgfClientConfiguration.AppRootPath}/_content/{libName}/scripts/devexpress-theme.js");
         }
         await base.OnAfterRenderAsync(firstRender);
     }
