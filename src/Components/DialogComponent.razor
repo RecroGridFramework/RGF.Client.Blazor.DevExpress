@@ -71,11 +71,5 @@
     @<DxButton RenderStyle="@(button.IsPrimary ? ButtonRenderStyle.Primary : ButtonRenderStyle.Secondary)" title="@button.Title" CssClass="@(button.CssClass ?? "my-1 ms-2")"
               IconCssClass="@button.IconName" Enabled="@(!button.Disabled)" Click="button.Callback" />;
 
-    private void OnClose(PopupClosingEventArgs args)
-    {
-        if (DialogParameters.OnClose != null)
-        {
-            args.Cancel = DialogParameters.OnClose.Invoke() == false;
-        }
-    }
+    private Task OnClose(PopupClosingEventArgs args) => DialogParameters.EventDispatcher.RaiseEventAsync(RgfDialogEventKind.Close, this);
 }
