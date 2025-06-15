@@ -9,16 +9,16 @@
                 </tr>
             </thead>
             <tbody>
-                @for (int i = 0; i < RgfColSettings.Columns.Length; i++)
+                @foreach (var settings in RgfColSettings.Columns)
                 {
-                    var col = RgfColSettings.Columns[i];
+                    var col = settings;
                     <tr>
-                        <td class="@col.CssClass" style="white-space:nowrap">@col.Property.ColTitle</td>
+                        <td class="@col.CssClass" style="white-space:nowrap">@(col.PathTitle ?? col.Property.ColTitle)</td>
                         <td>
-                            <DxSpinEdit T="int?" @bind-Value="@col.ColPos" Width="125px" />
+                            <DxSpinEdit T="int?" @bind-Value="@col.ColPosOrNull" Width="125px" />
                         </td>
                         <td>
-                            <DxSpinEdit T="int?" @bind-Value="@col.ColWidth" Width="125px" />
+                            <DxSpinEdit T="int?" @bind-Value="@col.ColWidthOrNull" Width="125px" />
                         </td>
                     </tr>
                 }

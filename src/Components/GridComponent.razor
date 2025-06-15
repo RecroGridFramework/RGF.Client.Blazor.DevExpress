@@ -1,5 +1,4 @@
-﻿
-<RgfGridComponent @ref="_rgfGridRef" EntityParameters="EntityParameters" GridComponent="this">
+﻿<RgfGridComponent @ref="_rgfGridRef" EntityParameters="EntityParameters" GridComponent="this">
     <GridTemplate Context="RgfGrid">
         @if (_initialized)
         {
@@ -10,7 +9,7 @@
                     ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
                     RowClick="OnRowClick" RowDoubleClick="OnRowDoubleClick">
                 <Columns>
-                    @foreach (var prop in EntityDesc.SortedVisibleColumns)
+                    @foreach (var prop in Manager.ListHandler.SortedVisibleColumns)
                     {
                         <DxGridDataColumn FieldName="@prop.Alias" Name="@prop.ClientName" Caption="@prop.ColTitle"
                                           AllowSort="@prop.Orderable" SortMode="GridColumnSortMode.Custom"
