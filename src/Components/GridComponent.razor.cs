@@ -90,7 +90,7 @@ public partial class GridComponent : ComponentBase, IDisposable
     }
     //private void UnboundColumnData(GridUnboundColumnDataEventArgs e) { e.Value = ((RgfDynamicDictionary)e.DataItem).GetMember(e.FieldName); }
 
-    private async Task OnVisibleIndexChanged(RgfProperty property, int newIdx)
+    private async Task OnVisibleIndexChanged(IRgfProperty property, int newIdx)
     {
         if (property.ColPos != newIdx + 1)
         {
@@ -99,7 +99,7 @@ public partial class GridComponent : ComponentBase, IDisposable
         }
     }
 
-    private void OnWidthChanged(RgfProperty property, string width)
+    private void OnWidthChanged(IRgfProperty property, string width)
     {
         if (_initialized)
         {
@@ -112,7 +112,7 @@ public partial class GridComponent : ComponentBase, IDisposable
     {
         _logger.LogDebug("CreateAttributes");
         var rowData = arg.Args.Data ?? throw new ArgumentException();
-        foreach (var prop in EntityDesc.SortedVisibleColumns)
+        foreach (var prop in Manager.ListHandler.SortedVisibleColumns)
         {
             string? propClass = null;
             if (prop.FormType == PropertyFormType.CheckBox)
