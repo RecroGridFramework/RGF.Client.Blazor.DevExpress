@@ -1,5 +1,5 @@
 ﻿<DxComboBox TValue="string" TData="KeyValuePair<string, string>" TextFieldName="Value" ValueFieldName="Key"
-            Data="Themes" @bind-Value="ThemeName" SelectedItemChanged="OnThemeChange" />
+            Data="Themes" @bind-Value="ThemeName" SelectedDataItemChanged="OnThemeChange" />
 
 @inject IJSRuntime _jsRuntime
 @code {
@@ -19,9 +19,9 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private void OnThemeChange(KeyValuePair<string, string> value)
+    private void OnThemeChange(SelectedDataItemChangedEventArgs<KeyValuePair<string, string>> args)
     {
-        _module?.InvokeVoidAsync("setTheme", value.Key, RgfClientConfiguration.AppRootPath);
+        _module?.InvokeVoidAsync("setTheme", args.DataItem.Key, RgfClientConfiguration.AppRootPath);
     }
 
     private Dictionary<string, string> Themes = new() 
